@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import styled from "styled-components";
+import { theme } from "../../lib/theme/theme";
 
 interface Product {
   id: number;
@@ -12,42 +16,136 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+  onAddToCartWithoutOpening: (product: Product) => void;
 }
 
-export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+const CardContainer = styled.div`
+  width: 345px;
+  height: 555px;
+  background-color: ${theme.colors.navyBlue};
+  border-radius: ${theme.borderRadius.default};
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: ${theme.shadows.card};
+  position: relative;
+`;
+
+const ImageFrame = styled.div`
+  width: 296px;
+  height: 258px;
+  background-color: ${theme.colors.imageFrame};
+  border-radius: ${theme.borderRadius.default};
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  overflow: hidden;
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+
+const ProductTitle = styled.h2`
+  color: ${theme.colors.white};
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  font-family: ${theme.fonts.primary};
+`;
+
+const ProductDescription = styled.p`
+  color: ${theme.colors.lightGray};
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+  font-family: ${theme.fonts.primary};
+`;
+
+const PriceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const PriceRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const EthIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: ${theme.colors.ethBlue};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: ${theme.colors.white};
+`;
+
+const PriceText = styled.p`
+  color: ${theme.colors.white};
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  font-family: ${theme.fonts.primary};
+`;
+
+const BuyButton = styled.button`
+  width: 100%;
+  height: 48px;
+  background-color: ${theme.colors.orange};
+  color: ${theme.colors.white};
+  border: none;
+  border-radius: ${theme.borderRadius.default};
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: ${theme.fonts.primary};
+  letter-spacing: 0.1em;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #FF9A3D;
+  }
+`;
+
+const AddToCartButton = styled.button`
+  width: 100%;
+  height: 48px;
+  background-color: transparent;
+  color: ${theme.colors.orange};
+  border: 2px solid ${theme.colors.orange};
+  border-radius: ${theme.borderRadius.default};
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: ${theme.fonts.primary};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${theme.colors.orange};
+    color: ${theme.colors.white};
+  }
+`;
+
+export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening }: ProductCardProps) {
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
   };
 
   return (
-    <div
-      style={{
-        width: "345px",
-        height: "555px",
-        backgroundColor: "#191A20",
-        borderRadius: "8px",
-        padding: "24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "24px",
-        boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.10)",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          width: "296px",
-          height: "258px",
-          backgroundColor: "#22232C",
-          borderRadius: "8px",
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          alignSelf: "center",
-          overflow: "hidden",
-        }}
-      >
+    <CardContainer>
+      <ImageFrame>
         <Image
           src={product.image}
           alt={product.name}
@@ -55,93 +153,29 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           height={200}
           style={{ objectFit: "contain" }}
         />
-      </div>
+      </ImageFrame>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          flex: 1,
-        }}
-      >
-        <h2
-          style={{
-            color: "#FFFFFF",
-            fontSize: "18px",
-            fontWeight: "600",
-            margin: 0,
-            fontFamily: "Poppins, sans-serif",
-          }}
-        >
-          {product.name}
-        </h2>
-        <p
-          style={{
-            color: "#CCCCCC",
-            fontSize: "12px",
-            margin: 0,
-            lineHeight: "1.6",
-            fontFamily: "Poppins, sans-serif",
-          }}
-        >
+      <ContentContainer>
+        <ProductTitle>{product.name}</ProductTitle>
+        <ProductDescription>
           Redesigned from scratch and completely revised.
-        </p>
-      </div>
+        </ProductDescription>
+      </ContentContainer>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div
-            style={{
-              width: "24px",
-              height: "24px",
-              borderRadius: "50%",
-              backgroundColor: "#5D6AE1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-            }}
-          >
-            <span style={{ color: "#FFFFFF" }}>Ξ</span>
-          </div>
-          <p
-            style={{
-              color: "#FFFFFF",
-              fontSize: "20px",
-              fontWeight: "700",
-              margin: 0,
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            {formatPrice(product.price)} ETH
-          </p>
-        </div>
-        <button
-          onClick={() => onAddToCart(product)}
-          style={{
-            width: "100%",
-            height: "48px",
-            backgroundColor: "#FF8310",
-            color: "#FFFFFF",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "700",
-            cursor: "pointer",
-            fontFamily: "Poppins, sans-serif",
-            letterSpacing: "0.1em",
-          }}
-        >
+      <PriceContainer>
+        <PriceRow>
+          <EthIcon>
+            <span>Ξ</span>
+          </EthIcon>
+          <PriceText>{formatPrice(product.price)} ETH</PriceText>
+        </PriceRow>
+        <BuyButton onClick={() => onAddToCart(product)}>
           COMPRAR
-        </button>
-      </div>
-    </div>
+        </BuyButton>
+        <AddToCartButton onClick={() => onAddToCartWithoutOpening(product)}>
+          Adicionar ao Carrinho
+        </AddToCartButton>
+      </PriceContainer>
+    </CardContainer>
   );
 }
