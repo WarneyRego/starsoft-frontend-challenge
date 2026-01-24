@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 import { theme } from "../../lib/theme/theme";
 
 interface Product {
@@ -83,13 +85,10 @@ const PriceRow = styled.div`
 const EthIcon = styled.div`
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  background-color: ${theme.colors.ethBlue};
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  color: ${theme.colors.white};
 `;
 
 const PriceText = styled.p`
@@ -116,6 +115,12 @@ const BuyButton = styled.button`
 
   &:hover {
     background-color: #FF9A3D;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 134, 45, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -131,16 +136,39 @@ const AddToCartButton = styled.button`
   cursor: pointer;
   font-family: ${theme.fonts.primary};
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
   &:hover {
     background-color: ${theme.colors.orange};
     color: ${theme.colors.white};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 134, 45, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
+const FeedbackText = styled(motion.span)`
+  font-size: 12px;
+  font-weight: 700;
+`;
+
 export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening }: ProductCardProps) {
+  const [isAdded, setIsAdded] = useState(false);
+
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
+  };
+
+  const handleAddToCart = () => {
+    onAddToCartWithoutOpening(product);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
@@ -165,15 +193,40 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
       <PriceContainer>
         <PriceRow>
           <EthIcon>
-            <span>Ξ</span>
+            <Image 
+              src="/images/icons/eth.png" 
+              alt="Ethereum Icon" 
+              fill
+              style={{ objectFit: "contain" }}
+            />
           </EthIcon>
           <PriceText>{formatPrice(product.price)} ETH</PriceText>
         </PriceRow>
         <BuyButton onClick={() => onAddToCart(product)}>
           COMPRAR
         </BuyButton>
-        <AddToCartButton onClick={() => onAddToCartWithoutOpening(product)}>
-          Adicionar ao Carrinho
+        <AddToCartButton onClick={handleAddToCart}>
+          <AnimatePresence mode="wait">
+            {isAdded ? (
+              <FeedbackText
+                key="added"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                ✓ Adicionado!
+              </FeedbackText>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                Adicionar ao Carrinho
+              </motion.span>
+            )}
+          </AnimatePresence>
         </AddToCartButton>
       </PriceContainer>
     </CardContainer>

@@ -120,14 +120,10 @@ const PriceRow = styled.div`
 const SmallEthIcon = styled.div`
   width: 20px;
   height: 20px;
-  border-radius: 50%;
-  background-color: ${theme.colors.ethBlue};
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  color: ${theme.colors.white};
-  transform: scale(0.8);
 `;
 
 const ItemPrice = styled.span`
@@ -198,13 +194,10 @@ const TotalPriceContainer = styled.div`
 const LargeEthIcon = styled.div`
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background-color: ${theme.colors.ethBlue};
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${theme.colors.white};
-  font-size: 16px;
 `;
 
 const TotalPrice = styled.span`
@@ -271,7 +264,12 @@ export default function CartOverlay({
               </ItemDescription>
               <PriceRow>
                 <SmallEthIcon>
-                  <span>Ξ</span>
+                  <Image 
+                    src="/images/icons/eth.png" 
+                    alt="Ethereum Icon" 
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
                 </SmallEthIcon>
                 <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
               </PriceRow>
@@ -298,7 +296,14 @@ export default function CartOverlay({
         <TotalContainer>
           <TotalLabel>TOTAL</TotalLabel>
           <TotalPriceContainer>
-            <LargeEthIcon>Ξ</LargeEthIcon>
+            <LargeEthIcon>
+              <Image 
+                src="/images/icons/eth.png" 
+                alt="Ethereum Icon" 
+                fill
+                style={{ objectFit: "contain" }}
+              />
+            </LargeEthIcon>
             <TotalPrice>{total.toFixed(0)} ETH</TotalPrice>
           </TotalPriceContainer>
         </TotalContainer>
