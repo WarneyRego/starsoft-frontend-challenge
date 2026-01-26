@@ -5,8 +5,14 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import ProductCard from "./ProductCard";
 import Header from "./Header";
-import CartOverlay from "./CartOverlay";
+import dynamic from "next/dynamic";
 import { theme } from "../../lib/theme/theme";
+import { useAppDispatch } from "../../lib/redux/hooks";
+import { addToCart, setCartOpen } from "../../lib/redux/slices/cartSlice";
+
+const CartOverlay = dynamic(() => import("./CartOverlay"), {
+  ssr: false,
+});
 
 interface Product {
   id: number;
@@ -15,10 +21,6 @@ interface Product {
   image: string;
   price: string;
   createdAt: string;
-}
-
-interface CartItem extends Product {
-  quantity: number;
 }
 
 const PageContainer = styled.div`
@@ -98,6 +100,8 @@ const ButtonText = styled.span`
 `;
 
 export default function DashboardProducts() {
+  const dispatch = useAppDispatch();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -105,16 +109,12 @@ export default function DashboardProducts() {
   const [totalCount, setTotalCount] = useState(0);
   const rowsPerPage = 10;
 
-  // Cart State
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://api-challenge.starsoft.games/api/v1/products?page=1&rows=${rowsPerPage}&sortBy=name&orderBy=ASC`
+          `/api/products?page=1&rows=${rowsPerPage}&sortBy=name&orderBy=ASC`
         );
         const data = await res.json();
         setProducts(data.products);
@@ -138,7 +138,7 @@ export default function DashboardProducts() {
     try {
       const nextPage = currentPage + 1;
       const res = await fetch(
-        `https://api-challenge.starsoft.games/api/v1/products?page=${nextPage}&rows=${rowsPerPage}&sortBy=name&orderBy=ASC`
+        `/api/products?page=${nextPage}&rows=${rowsPerPage}&sortBy=name&orderBy=ASC`
       );
       const data = await res.json();
       
@@ -160,49 +160,13 @@ export default function DashboardProducts() {
     }
   };
 
-  const addToCart = (product: Product) => {
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-    setIsCartOpen(true);
+  const handleAddToCart = (product: Product) => {
+    dispatch(addToCart(product));
+    dispatch(setCartOpen(true));
   };
 
-  const addToCartWithoutOpening = (product: Product) => {
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  };
-
-  const removeFromCart = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const newQty = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      })
-    );
+  const handleAddToCartWithoutOpening = (product: Product) => {
+    dispatch(addToCart(product));
   };
 
   const hasMoreProducts = products.length < totalCount;
@@ -211,10 +175,7 @@ export default function DashboardProducts() {
 
   return (
     <PageContainer>
-      <Header 
-        onOpenCart={() => setIsCartOpen(true)} 
-        cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)} 
-      />
+      <Header />
       
       <MainContent>
         {loading ? (
@@ -226,8 +187,8 @@ export default function DashboardProducts() {
                 <ProductCard 
                   key={product.id} 
                   product={product} 
-                  onAddToCart={addToCart}
-                  onAddToCartWithoutOpening={addToCartWithoutOpening}
+                  onAddToCart={handleAddToCart}
+                  onAddToCartWithoutOpening={handleAddToCartWithoutOpening}
                 />
               ))}
             </ProductsGrid>
@@ -282,13 +243,7 @@ export default function DashboardProducts() {
         )}
       </MainContent>
 
-      <CartOverlay 
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onRemove={removeFromCart}
-        onUpdateQuantity={updateQuantity}
-      />
+      <CartOverlay />
     </PageContainer>
   );
 }

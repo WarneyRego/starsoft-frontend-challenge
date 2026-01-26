@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import StyledComponentsRegistry from "../lib/providers/StyledComponentsRegistry";
+import { ReduxProvider } from "../lib/redux/Provider";
 
 export const metadata: Metadata = {
   title: "Starsoft Products",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        <ReduxProvider>
+          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        </ReduxProvider>
       </body>
     </html>
   );

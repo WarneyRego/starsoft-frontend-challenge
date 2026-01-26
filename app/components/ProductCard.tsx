@@ -5,6 +5,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { theme } from "../../lib/theme/theme";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -173,18 +174,22 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
 
   return (
     <CardContainer>
-      <ImageFrame>
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={200}
-          height={200}
-          style={{ objectFit: "contain" }}
-        />
-      </ImageFrame>
+      <Link href={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+        <ImageFrame>
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={200}
+            height={200}
+            style={{ objectFit: "contain" }}
+          />
+        </ImageFrame>
+      </Link>
 
       <ContentContainer>
-        <ProductTitle>{product.name}</ProductTitle>
+        <Link href={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+          <ProductTitle>{product.name}</ProductTitle>
+        </Link>
         <ProductDescription>
           Redesigned from scratch and completely revised.
         </ProductDescription>
@@ -205,29 +210,7 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
         <BuyButton onClick={() => onAddToCart(product)}>
           COMPRAR
         </BuyButton>
-        <AddToCartButton onClick={handleAddToCart}>
-          <AnimatePresence mode="wait">
-            {isAdded ? (
-              <FeedbackText
-                key="added"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                ✓ Adicionado!
-              </FeedbackText>
-            ) : (
-              <motion.span
-                key="add"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                Adicionar ao Carrinho
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </AddToCartButton>
+
       </PriceContainer>
     </CardContainer>
   );

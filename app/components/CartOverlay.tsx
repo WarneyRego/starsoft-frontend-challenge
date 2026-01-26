@@ -1,27 +1,27 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import styled from "styled-components";
 import { theme } from "../../lib/theme/theme";
+import { useAppDispatch, useAppSelector } from "../../lib/redux/hooks";
+import { 
+  removeFromCart, 
+  updateQuantity, 
+  setCartOpen 
+} from "../../lib/redux/slices/cartSlice";
 
-interface CartItem {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  price: string;
-  quantity: number;
-}
+const Backdrop = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+`;
 
-interface CartOverlayProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CartItem[];
-  onRemove: (id: number) => void;
-  onUpdateQuantity: (id: number, delta: number) => void;
-}
-
-const OverlayContainer = styled.div`
+const OverlayContainer = styled(motion.div)`
   position: fixed;
   top: 0;
   right: 0;
@@ -65,6 +65,7 @@ const HeaderTitle = styled.h2`
 const ItemsList = styled.div`
   flex: 1;
   overflow-y: auto;
+  scroll-behavior: smooth;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -219,97 +220,115 @@ const CheckoutButton = styled.button`
   font-family: ${theme.fonts.primary};
 `;
 
-export default function CartOverlay({
-  isOpen,
-  onClose,
-  items,
-  onRemove,
-  onUpdateQuantity,
-}: CartOverlayProps) {
-  if (!isOpen) return null;
+export default function CartOverlay() {
+  const dispatch = useAppDispatch();
+  const items = useAppSelector((state) => state.cart.items);
+  const isOpen = useAppSelector((state) => state.cart.isOpen);
 
   const total = items.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
   );
 
+  const handleClose = () => dispatch(setCartOpen(false));
+  const handleRemove = (id: number) => dispatch(removeFromCart(id));
+  const handleUpdateQuantity = (id: number, delta: number) => 
+    dispatch(updateQuantity({ id, delta }));
+
   return (
-    <OverlayContainer>
-      <HeaderContainer>
-        <BackButton onClick={onClose}>
-          <Image src="/images/icons/arrow.svg" alt="Voltar" width={24} height={24} />
-        </BackButton>
-        <HeaderTitle>Mochila de Compras</HeaderTitle>
-      </HeaderContainer>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <Backdrop
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleClose}
+          />
+          <OverlayContainer
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          >
+            <HeaderContainer>
+              <BackButton onClick={handleClose}>
+                <Image src="/images/icons/arrow.svg" alt="Voltar" width={24} height={24} />
+              </BackButton>
+              <HeaderTitle>Mochila de Compras</HeaderTitle>
+            </HeaderContainer>
 
-      <ItemsList>
-        {items.map((item) => (
-          <ItemCard key={item.id}>
-            <ItemImageContainer>
-              <Image
-                src={item.image}
-                alt={item.name}
-                width={80}
-                height={80}
-                style={{ objectFit: "contain" }}
-              />
-            </ItemImageContainer>
+            <ItemsList>
+              {items.map((item) => (
+                <ItemCard key={item.id}>
+                  <ItemImageContainer>
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={80}
+                      height={80}
+                      style={{ objectFit: "contain" }}
+                    />
+                  </ItemImageContainer>
 
-            <ItemDetails>
-              <ItemName>{item.name}</ItemName>
-              <ItemDescription>
-                {item.description.length > 50
-                  ? item.description.substring(0, 50) + "..."
-                  : item.description}
-              </ItemDescription>
-              <PriceRow>
-                <SmallEthIcon>
-                  <Image 
-                    src="/images/icons/eth.png" 
-                    alt="Ethereum Icon" 
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
-                </SmallEthIcon>
-                <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
-              </PriceRow>
+                  <ItemDetails>
+                    <ItemName>{item.name}</ItemName>
+                    <ItemDescription>
+                      {item.description.length > 50
+                        ? item.description.substring(0, 50) + "..."
+                        : item.description}
+                    </ItemDescription>
+                    <PriceRow>
+                      <SmallEthIcon>
+                        <Image 
+                          src="/images/icons/eth.png" 
+                          alt="Ethereum Icon" 
+                          fill
+                          style={{ objectFit: "contain" }}
+                        />
+                      </SmallEthIcon>
+                      <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
+                    </PriceRow>
 
-              <QuantityContainer>
-                <QuantityButton onClick={() => onUpdateQuantity(item.id, -1)}>
-                  -
-                </QuantityButton>
-                <QuantityText>{item.quantity}</QuantityText>
-                <QuantityButton onClick={() => onUpdateQuantity(item.id, 1)}>
-                  +
-                </QuantityButton>
-              </QuantityContainer>
-            </ItemDetails>
+                    <QuantityContainer>
+                      <QuantityButton onClick={() => handleUpdateQuantity(item.id, -1)}>
+                        -
+                      </QuantityButton>
+                      <QuantityText>{item.quantity}</QuantityText>
+                      <QuantityButton onClick={() => handleUpdateQuantity(item.id, 1)}>
+                        +
+                      </QuantityButton>
+                    </QuantityContainer>
+                  </ItemDetails>
 
-            <RemoveButton onClick={() => onRemove(item.id)}>
-              <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
-            </RemoveButton>
-          </ItemCard>
-        ))}
-      </ItemsList>
+                  <RemoveButton onClick={() => handleRemove(item.id)}>
+                    <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
+                  </RemoveButton>
+                </ItemCard>
+              ))}
+            </ItemsList>
 
-      <FooterContainer>
-        <TotalContainer>
-          <TotalLabel>TOTAL</TotalLabel>
-          <TotalPriceContainer>
-            <LargeEthIcon>
-              <Image 
-                src="/images/icons/eth.png" 
-                alt="Ethereum Icon" 
-                fill
-                style={{ objectFit: "contain" }}
-              />
-            </LargeEthIcon>
-            <TotalPrice>{total.toFixed(0)} ETH</TotalPrice>
-          </TotalPriceContainer>
-        </TotalContainer>
+            <FooterContainer>
+              <TotalContainer>
+                <TotalLabel>TOTAL</TotalLabel>
+                <TotalPriceContainer>
+                  <LargeEthIcon>
+                    <Image 
+                      src="/images/icons/eth.png" 
+                      alt="Ethereum Icon" 
+                      fill
+                      style={{ objectFit: "contain" }}
+                    />
+                  </LargeEthIcon>
+                  <TotalPrice>{total.toFixed(0)} ETH</TotalPrice>
+                </TotalPriceContainer>
+              </TotalContainer>
 
-        <CheckoutButton>FINALIZAR COMPRA</CheckoutButton>
-      </FooterContainer>
-    </OverlayContainer>
+              <CheckoutButton>FINALIZAR COMPRA</CheckoutButton>
+            </FooterContainer>
+          </OverlayContainer>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
