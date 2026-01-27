@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Head from "next/head";
 import Image from "next/image";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,6 +96,15 @@ export default function ProductDetailsClient({ id }: { id: string }) {
     },
   });
 
+  // Prepara URL da imagem para meta tags
+  const getImageUrl = (image: string) => {
+    if (image.startsWith('http')) return image;
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}${image}`;
+    }
+    return image;
+  };
+
   const handleAddToCart = () => {
     if (product) {
       dispatch(addToCart(product));
@@ -129,8 +139,23 @@ export default function ProductDetailsClient({ id }: { id: string }) {
   }
 
   return (
-    <PageContainer>
-      <Header />
+    <>
+      {product && (
+        <Head>
+          <title>{`${product.name} - Starsoft Products`}</title>
+          <meta name="description" content={product.description} />
+          <meta property="og:title" content={`${product.name} - Starsoft Products`} />
+          <meta property="og:description" content={product.description} />
+          <meta property="og:image" content={getImageUrl(product.image)} />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={`${product.name} - Starsoft Products`} />
+          <meta name="twitter:description" content={product.description} />
+          <meta name="twitter:image" content={getImageUrl(product.image)} />
+        </Head>
+      )}
+      <PageContainer>
+        <Header />
       
       <Content
         initial={{ opacity: 0, y: 20 }}
@@ -213,5 +238,6 @@ export default function ProductDetailsClient({ id }: { id: string }) {
 
       <CartOverlay />
     </PageContainer>
+    </>
   );
 }

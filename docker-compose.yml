@@ -1,0 +1,22 @@
+services:
+  next-app:
+    container_name: starsoft-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deps
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true # Helps with HMR in Docker on some systems
+    command: npm run dev
+
+# Para rodar em produção via compose:
+# docker compose build
+# docker compose run --rm next-app npm run build
+# docker compose up

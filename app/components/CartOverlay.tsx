@@ -196,72 +196,89 @@ export default function CartOverlay() {
 
             <ItemsList layout>
               <AnimatePresence mode="popLayout">
-                {items.map((item) => (
-                  <ItemCard 
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                {items.length === 0 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ 
+                      textAlign: 'center', 
+                      marginTop: '40px',
+                      color: theme.colors.lightGray,
+                      fontFamily: theme.fonts.primary
+                    }}
                   >
-                    <ItemImageContainer>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        style={{ objectFit: "contain" }}
-                      />
-                    </ItemImageContainer>
-
-                    <ItemDetails>
-                      <ItemName>{item.name}</ItemName>
-                      <ItemDescription>
-                        {item.description.length > 50
-                          ? item.description.substring(0, 50) + "..."
-                          : item.description}
-                      </ItemDescription>
-                      <ItemPriceRow>
-                        <EthIcon $size="20px">
-                          <Image 
-                            src="/images/icons/eth.png" 
-                            alt="Ethereum Icon" 
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        </EthIcon>
-                        <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
-                      </ItemPriceRow>
-
-                      <QuantityContainer>
-                        <QuantityButton 
-                          onClick={() => handleUpdateQuantity(item.id, -1)}
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.8 }}
-                        >
-                          -
-                        </QuantityButton>
-                        <QuantityText>{item.quantity}</QuantityText>
-                        <QuantityButton 
-                          onClick={() => handleUpdateQuantity(item.id, 1)}
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.8 }}
-                        >
-                          +
-                        </QuantityButton>
-                      </QuantityContainer>
-                    </ItemDetails>
-
-                    <RemoveButton 
-                      onClick={() => handleRemove(item.id)}
-                      whileHover={{ scale: 1.1, backgroundColor: "#FF9A3D" }}
-                      whileTap={{ scale: 0.9 }}
+                    Seu carrinho está vazio
+                  </motion.div>
+                ) : (
+                  items.map((item) => (
+                    <ItemCard 
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     >
-                      <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
-                    </RemoveButton>
-                  </ItemCard>
-                ))}
+                      <ItemImageContainer>
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={80}
+                          height={80}
+                          style={{ objectFit: "contain" }}
+                        />
+                      </ItemImageContainer>
+
+                      <ItemDetails>
+                        <ItemName>{item.name}</ItemName>
+                        <ItemDescription>
+                          {item.description.length > 50
+                            ? item.description.substring(0, 50) + "..."
+                            : item.description}
+                        </ItemDescription>
+                        <ItemPriceRow>
+                          <EthIcon $size="20px">
+                            <Image 
+                              src="/images/icons/eth.png" 
+                              alt="Ethereum Icon" 
+                              fill
+                              style={{ objectFit: "contain" }}
+                            />
+                          </EthIcon>
+                          <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
+                        </ItemPriceRow>
+
+                        <QuantityContainer>
+                          <QuantityButton 
+                            onClick={() => handleUpdateQuantity(item.id, -1)}
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.8 }}
+                          >
+                            -
+                          </QuantityButton>
+                          <QuantityText>{item.quantity}</QuantityText>
+                          <QuantityButton 
+                            onClick={() => handleUpdateQuantity(item.id, 1)}
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.8 }}
+                          >
+                            +
+                          </QuantityButton>
+                        </QuantityContainer>
+                      </ItemDetails>
+
+                      <RemoveButton 
+                        onClick={() => handleRemove(item.id)}
+                        whileHover={{ scale: 1.1, backgroundColor: "#FF9A3D" }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
+                      </RemoveButton>
+                    </ItemCard>
+                  ))
+                )}
               </AnimatePresence>
             </ItemsList>
 

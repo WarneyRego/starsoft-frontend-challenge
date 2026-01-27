@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
+import Head from "next/head";
 import Image from "next/image";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
@@ -262,8 +263,20 @@ export default function DashboardProducts() {
   };
 
   return (
-    <PageContainer>
-      <Header />
+    <>
+      <Head>
+        <title>Starsoft Products - Galeria de NFTs</title>
+        <meta name="description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
+        <meta name="keywords" content="NFT, produtos digitais, Ethereum, ETH, galeria, Starsoft" />
+        <meta property="og:title" content="Starsoft Products - Galeria de NFTs" />
+        <meta property="og:description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Starsoft Products - Galeria de NFTs" />
+        <meta name="twitter:description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
+      </Head>
+      <PageContainer>
+        <Header />
       
       <MainContent
         initial={{ opacity: 0, y: 20 }}
@@ -393,5 +406,6 @@ export default function DashboardProducts() {
         <FooterText>STARSOFT © TODOS OS DIREITOS RESERVADOS</FooterText>
       </Footer>
     </PageContainer>
+    </>
   );
 }

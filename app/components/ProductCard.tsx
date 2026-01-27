@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { theme } from "../../lib/theme/theme";
 import {
   CardContainer,
@@ -32,6 +31,7 @@ interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   onAddToCartWithoutOpening: (product: Product) => void;
+  variants?: Variants;
 }
 
 const PriceContainer = styled(FlexContainer).attrs({
@@ -39,17 +39,10 @@ const PriceContainer = styled(FlexContainer).attrs({
   $gap: "16px",
 })``;
 
-export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening }: ProductCardProps) {
-  const [isAdded, setIsAdded] = useState(false);
+export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening, variants }: ProductCardProps) {
 
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
-  };
-
-  const handleAddToCart = () => {
-    onAddToCartWithoutOpening(product);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
@@ -57,7 +50,8 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
       $width="345px"
       $height="555px"
       style={{ cursor: 'default' }}
-      whileHover={{ 
+      variants={variants}
+      whileHover={{  
         y: -10,
         boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.3)"
       }}
