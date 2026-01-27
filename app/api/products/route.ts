@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getProducts } from "@/lib/services/products";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,22 +9,11 @@ export async function GET(request: Request) {
   const orderBy = searchParams.get("orderBy") || "ASC";
 
   try {
-    const res = await fetch(
-      `https://api-challenge.starsoft.games/api/v1/products?page=${page}&rows=${rows}&sortBy=${sortBy}&orderBy=${orderBy}`
-    );
-    
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: "Erro ao buscar produtos da API externa" },
-        { status: res.status }
-      );
-    }
-
-    const data = await res.json();
+    const data = await getProducts(page, rows, sortBy, orderBy);
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Erro interno ao buscar produtos" },
+      { error: error.message || "Erro ao buscar produtos" },
       { status: 500 }
     );
   }

@@ -10,59 +10,33 @@ import {
   updateQuantity, 
   setCartOpen 
 } from "../../lib/redux/slices/cartSlice";
+import {
+  Backdrop,
+  OverlayContainer,
+  FlexContainer,
+  IconButton,
+  Title,
+  Subtitle,
+  Description,
+  PriceRow,
+  EthIcon,
+  PriceText,
+  PrimaryButton,
+  ImageFrame,
+} from "../../lib/ui";
 
-const Backdrop = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-`;
-
-const OverlayContainer = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 100%;
-  max-width: 480px;
-  height: 100vh;
-  background-color: ${theme.colors.navyBlue};
-  box-shadow: ${theme.shadows.overlay};
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  padding: 40px 30px;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 24px;
+const HeaderContainer = styled(FlexContainer).attrs({
+  $gap: "24px",
+  $align: "center",
+})`
   margin-bottom: 60px;
 `;
 
-const BackButton = styled.button`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: ${theme.colors.buttonGray};
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
+const HeaderTitle = styled(Title).attrs({
+  $size: "24px",
+})``;
 
-const HeaderTitle = styled.h2`
-  color: ${theme.colors.white};
-  font-size: 24px;
-  font-weight: 600;
-  font-family: ${theme.fonts.primary};
-`;
-
-const ItemsList = styled.div`
+const ItemsList = styled(motion.div)`
   flex: 1;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -72,7 +46,7 @@ const ItemsList = styled.div`
   padding-right: 10px;
 `;
 
-const ItemCard = styled.div`
+const ItemCard = styled(motion.div)`
   background-color: ${theme.colors.imageFrame};
   border-radius: ${theme.borderRadius.large};
   padding: 16px;
@@ -81,57 +55,37 @@ const ItemCard = styled.div`
   position: relative;
 `;
 
-const ItemImageContainer = styled.div`
-  width: 100px;
-  height: 100px;
-  background-color: ${theme.colors.navyBlue};
-  border-radius: ${theme.borderRadius.default};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+const ItemImageContainer = styled(ImageFrame).attrs({
+  $width: "100px",
+  $height: "100px",
+  $bgColor: theme.colors.navyBlue,
+})``;
 
-const ItemDetails = styled.div`
+const ItemDetails = styled(FlexContainer).attrs({
+  $direction: "column",
+  $gap: "4px",
+})`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 `;
 
-const ItemName = styled.h3`
-  color: ${theme.colors.white};
-  font-size: 16px;
-  margin: 0;
-`;
+const ItemName = styled(Subtitle).attrs({
+  $size: "16px",
+})``;
 
-const ItemDescription = styled.p`
-  color: ${theme.colors.lightGray};
-  font-size: 12px;
-  margin: 0;
+const ItemDescription = styled(Description).attrs({
+  $size: "12px",
+})`
   max-width: 180px;
 `;
 
-const PriceRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+const ItemPriceRow = styled(PriceRow)`
   margin-top: 4px;
 `;
 
-const SmallEthIcon = styled.div`
-  width: 20px;
-  height: 20px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ItemPrice = styled.span`
-  color: ${theme.colors.white};
-  font-size: 16px;
-  font-weight: 600;
-`;
+const ItemPrice = styled(PriceText).attrs({
+  $size: "16px",
+  $weight: 600,
+})``;
 
 const QuantityContainer = styled.div`
   display: flex;
@@ -144,7 +98,7 @@ const QuantityContainer = styled.div`
   gap: 16px;
 `;
 
-const QuantityButton = styled.button`
+const QuantityButton = styled(motion.button)`
   color: ${theme.colors.white};
   background: none;
   border: none;
@@ -156,7 +110,7 @@ const QuantityText = styled.span`
   color: ${theme.colors.white};
 `;
 
-const RemoveButton = styled.button`
+const RemoveButton = styled(motion.button)`
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -186,39 +140,13 @@ const TotalLabel = styled.span`
   font-weight: 700;
 `;
 
-const TotalPriceContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
+const TotalPriceContainer = styled(PriceRow).attrs({
+  $gap: "12px",
+})``;
 
-const LargeEthIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TotalPrice = styled.span`
-  color: ${theme.colors.white};
-  font-size: 28px;
-  font-weight: 700;
-`;
-
-const CheckoutButton = styled.button`
-  width: 100%;
-  height: 64px;
-  background-color: ${theme.colors.orange};
-  color: ${theme.colors.white};
-  border: none;
-  border-radius: ${theme.borderRadius.large};
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: ${theme.fonts.primary};
-`;
+const TotalPrice = styled(PriceText).attrs({
+  $size: "28px",
+})``;
 
 export default function CartOverlay() {
   const dispatch = useAppDispatch();
@@ -246,85 +174,121 @@ export default function CartOverlay() {
             onClick={handleClose}
           />
           <OverlayContainer
+            $maxWidth="480px"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <HeaderContainer>
-              <BackButton onClick={handleClose}>
+              <IconButton 
+                $size="48px"
+                $bgColor={theme.colors.buttonGray}
+                $round
+                onClick={handleClose}
+                whileHover={{ scale: 1.1, backgroundColor: "#444" }}
+                whileTap={{ scale: 0.9 }}
+              >
                 <Image src="/images/icons/arrow.svg" alt="Voltar" width={24} height={24} />
-              </BackButton>
+              </IconButton>
               <HeaderTitle>Mochila de Compras</HeaderTitle>
             </HeaderContainer>
 
-            <ItemsList>
-              {items.map((item) => (
-                <ItemCard key={item.id}>
-                  <ItemImageContainer>
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={80}
-                      height={80}
-                      style={{ objectFit: "contain" }}
-                    />
-                  </ItemImageContainer>
+            <ItemsList layout>
+              <AnimatePresence mode="popLayout">
+                {items.map((item) => (
+                  <ItemCard 
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  >
+                    <ItemImageContainer>
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={80}
+                        height={80}
+                        style={{ objectFit: "contain" }}
+                      />
+                    </ItemImageContainer>
 
-                  <ItemDetails>
-                    <ItemName>{item.name}</ItemName>
-                    <ItemDescription>
-                      {item.description.length > 50
-                        ? item.description.substring(0, 50) + "..."
-                        : item.description}
-                    </ItemDescription>
-                    <PriceRow>
-                      <SmallEthIcon>
-                        <Image 
-                          src="/images/icons/eth.png" 
-                          alt="Ethereum Icon" 
-                          fill
-                          style={{ objectFit: "contain" }}
-                        />
-                      </SmallEthIcon>
-                      <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
-                    </PriceRow>
+                    <ItemDetails>
+                      <ItemName>{item.name}</ItemName>
+                      <ItemDescription>
+                        {item.description.length > 50
+                          ? item.description.substring(0, 50) + "..."
+                          : item.description}
+                      </ItemDescription>
+                      <ItemPriceRow>
+                        <EthIcon $size="20px">
+                          <Image 
+                            src="/images/icons/eth.png" 
+                            alt="Ethereum Icon" 
+                            fill
+                            style={{ objectFit: "contain" }}
+                          />
+                        </EthIcon>
+                        <ItemPrice>{parseFloat(item.price).toFixed(0)} ETH</ItemPrice>
+                      </ItemPriceRow>
 
-                    <QuantityContainer>
-                      <QuantityButton onClick={() => handleUpdateQuantity(item.id, -1)}>
-                        -
-                      </QuantityButton>
-                      <QuantityText>{item.quantity}</QuantityText>
-                      <QuantityButton onClick={() => handleUpdateQuantity(item.id, 1)}>
-                        +
-                      </QuantityButton>
-                    </QuantityContainer>
-                  </ItemDetails>
+                      <QuantityContainer>
+                        <QuantityButton 
+                          onClick={() => handleUpdateQuantity(item.id, -1)}
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.8 }}
+                        >
+                          -
+                        </QuantityButton>
+                        <QuantityText>{item.quantity}</QuantityText>
+                        <QuantityButton 
+                          onClick={() => handleUpdateQuantity(item.id, 1)}
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.8 }}
+                        >
+                          +
+                        </QuantityButton>
+                      </QuantityContainer>
+                    </ItemDetails>
 
-                  <RemoveButton onClick={() => handleRemove(item.id)}>
-                    <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
-                  </RemoveButton>
-                </ItemCard>
-              ))}
+                    <RemoveButton 
+                      onClick={() => handleRemove(item.id)}
+                      whileHover={{ scale: 1.1, backgroundColor: "#FF9A3D" }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Image src="/images/icons/trash.svg" alt="Remover" width={18} height={18} />
+                    </RemoveButton>
+                  </ItemCard>
+                ))}
+              </AnimatePresence>
             </ItemsList>
 
             <FooterContainer>
               <TotalContainer>
                 <TotalLabel>TOTAL</TotalLabel>
                 <TotalPriceContainer>
-                  <LargeEthIcon>
+                  <EthIcon $size="32px">
                     <Image 
                       src="/images/icons/eth.png" 
                       alt="Ethereum Icon" 
                       fill
                       style={{ objectFit: "contain" }}
                     />
-                  </LargeEthIcon>
+                  </EthIcon>
                   <TotalPrice>{total.toFixed(0)} ETH</TotalPrice>
                 </TotalPriceContainer>
               </TotalContainer>
 
-              <CheckoutButton>FINALIZAR COMPRA</CheckoutButton>
+              <PrimaryButton
+                $size="large"
+                $fullWidth
+                whileHover={{ backgroundColor: "#FF9A3D", scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                FINALIZAR COMPRA
+              </PrimaryButton>
             </FooterContainer>
           </OverlayContainer>
         </>

@@ -11,7 +11,8 @@ export const theme = {
     ethBlue: "#5D6AE1",
   },
   fonts: {
-    primary: "'Poppins', sans-serif",
+    primary: "var(--font-poppins), sans-serif",
+    secondary: "var(--font-ibm-plex-sans), sans-serif",
   },
   borderRadius: {
     default: "8px",

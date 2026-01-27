@@ -1,26 +1,26 @@
 import { NextResponse } from "next/server";
+import { getProductById } from "@/lib/services/products";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
 
   try {
-    const res = await fetch(`https://api-challenge.starsoft.games/api/v1/products/${id}`);
-    
-    if (!res.ok) {
+    const product = await getProductById(id);
+
+    if (!product) {
       return NextResponse.json(
         { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
-  } catch (error) {
+    return NextResponse.json(product);
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Erro ao buscar produto" },
+      { error: "Erro interno ao processar produto", message: error.message },
       { status: 500 }
     );
   }

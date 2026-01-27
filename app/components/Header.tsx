@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import styled from "styled-components";
+import { motion } from "framer-motion";
 import { theme } from "../../lib/theme/theme";
 import { useAppDispatch, useAppSelector } from "../../lib/redux/hooks";
 import { setCartOpen } from "../../lib/redux/slices/cartSlice";
@@ -17,11 +18,18 @@ const HeaderContainer = styled.header`
   background-color: transparent;
 `;
 
-const CartButton = styled.div`
+const CartButton = styled(motion.div)`
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
 `;
 
 const CartCount = styled.span`
@@ -38,7 +46,11 @@ export default function Header() {
 
   return (
     <HeaderContainer>
-      <div>
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Image
           src="/images/icons/logo.svg"
           alt="Starsoft Logo"
@@ -46,8 +58,15 @@ export default function Header() {
           height={40}
           priority
         />
-      </div>
-      <CartButton onClick={() => dispatch(setCartOpen(true))}>
+      </motion.div>
+      <CartButton 
+        onClick={() => dispatch(setCartOpen(true))}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Image
           src="/images/icons/shopcart.svg"
           alt="Shopping Cart"
