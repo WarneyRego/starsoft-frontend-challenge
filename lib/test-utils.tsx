@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore, EnhancedStore } from '@reduxjs/toolkit'
+import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import cartReducer from './redux/slices/cartSlice'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { theme } from './theme/theme'
@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   preloadedState?: any
-  store?: EnhancedStore
+  store?: any
 }
 
 const queryClient = new QueryClient({
@@ -24,16 +24,18 @@ const customRender = (
   ui: ReactElement,
   {
     preloadedState = {},
-    store = configureStore({
-      reducer: { cart: cartReducer },
-      preloadedState,
-    }),
+    store,
     ...renderOptions
   }: ExtendedRenderOptions = {}
 ) => {
+  const actualStore = store || configureStore({
+    reducer: combineReducers({ cart: cartReducer }),
+    preloadedState,
+  });
+
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
-      <Provider store={store}>
+      <Provider store={actualStore}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider theme={theme}>
             {children}
@@ -43,7 +45,7 @@ const customRender = (
     )
   }
 
-  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) }
+  return { store: actualStore, ...render(ui, { wrapper: Wrapper, ...renderOptions }) }
 }
 
 export * from '@testing-library/react'
