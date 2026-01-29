@@ -16,7 +16,6 @@ import { addToCart, setCartOpen } from "../../lib/redux/slices/cartSlice";
 import {
   PageContainer,
   FlexContainer,
-  LoadingContainer as BaseLoadingContainer,
 } from "../../lib/ui";
 
 const CartOverlay = dynamic(() => import("./CartOverlay"), {
@@ -41,6 +40,10 @@ const MainContent = styled(motion.main)`
   padding: 40px;
   max-width: 1500px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const ControlsContainer = styled(FlexContainer).attrs({
@@ -57,8 +60,13 @@ const ControlsContainer = styled(FlexContainer).attrs({
   }
 `;
 
-const LoadingContainer = styled(BaseLoadingContainer)`
+const LoadingContainer = styled(motion.div)`
   min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 `;
 
 const Spinner = styled(Image)`
@@ -78,15 +86,21 @@ const ProductsGrid = styled(motion.div)`
   grid-template-columns: repeat(auto-fill, 345px);
   gap: 24px;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
 `;
 
-const LoadMoreContainer = styled(FlexContainer).attrs({
-  $direction: "column",
-  $align: "center",
-  $gap: "10px",
-})`
+const LoadMoreContainer = styled(motion.div)`
   margin-top: 60px;
   padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 `;
 
 const ProgressTrack = styled.div`
@@ -95,6 +109,11 @@ const ProgressTrack = styled.div`
   background-color: #333333;
   border-radius: 8px;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 345px;
+  }
 `;
 
 const ProgressFill = styled(motion.div)`
@@ -124,6 +143,11 @@ const LoadMoreButton = styled(motion.button)<{ $disabled: boolean }>`
   &:hover:not(:disabled) {
     background-color: #444444;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 345px;
+  }
 `;
 
 const ButtonText = styled.span`
@@ -139,6 +163,11 @@ const Footer = styled(motion.footer)`
   justify-content: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: 40px;
+
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    text-align: center;
+  }
 `;
 
 const FooterText = styled.p`
@@ -228,12 +257,17 @@ export default function DashboardProducts() {
   const showNoResultsPreview = searchQuery.length > 0 && !activeSearch && previewFilteredProducts.length === 0;
 
   useEffect(() => {
-    if (status === "success" && filteredProducts.length > 0) {
-      setDisplayedProducts(filteredProducts);
-    } else if (status === "success" && !activeSearch && allProducts.length > 0) {
-      setDisplayedProducts(allProducts);
+    if (status === "success") {
+      const isLoadMore = filteredProducts.length > displayedProducts.length && displayedProducts.length > 0;
+      
+      // Se não for "carregar mais" (ou seja, carga inicial, busca ou filtro),
+      // atualizamos imediatamente. Se for "carregar mais", o handleProgressAnimationComplete
+      // cuidará de atualizar após a animação da barra.
+      if (!isLoadMore) {
+        setDisplayedProducts(filteredProducts);
+      }
     }
-  }, [status, filteredProducts, activeSearch, allProducts]);
+  }, [status, filteredProducts]);
 
   const totalCount = data?.pages[0]?.count || 0;
   const progressPercentage = totalCount > 0 ? (filteredProducts.length / totalCount) * 100 : 0;
@@ -279,9 +313,12 @@ export default function DashboardProducts() {
         <Header />
       
       <MainContent
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.8, 
+          ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for smooth motion
+        }}
       >
         <ControlsContainer>
           <SearchBar
@@ -300,12 +337,18 @@ export default function DashboardProducts() {
         </ControlsContainer>
 
         {status === "pending" ? (
-          <LoadingContainer>
+          <LoadingContainer
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             <Spinner src="/images/icons/spinner.svg" alt="Loading" width={48} height={48} />
             <LoadingText>Carregando produtos...</LoadingText>
           </LoadingContainer>
         ) : status === "error" ? (
-          <LoadingContainer>
+          <LoadingContainer
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             <LoadingText>Erro ao carregar produtos. Por favor, tente novamente.</LoadingText>
           </LoadingContainer>
         ) : (
@@ -318,15 +361,16 @@ export default function DashboardProducts() {
               <ProductsGrid
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
               >
                 <AnimatePresence mode="popLayout">
                   {displayedProducts.map((product) => (
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.4 }}
                       layout
                     >
                       <ProductCard 
@@ -340,15 +384,21 @@ export default function DashboardProducts() {
               </ProductsGrid>
             )}
 
-            {!activeSearch && hasNextPage && (
-              <LoadMoreContainer>
+            {!activeSearch && (hasNextPage || displayedProducts.length > 0) && (
+              <LoadMoreContainer
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
                 <ProgressTrack>
                   <ProgressFill 
                     initial={{ width: `${prevProgressPercentage}%` }}
                     animate={{ 
-                      width: isFetchingNextPage 
-                        ? `${nextProgressPercentage}%` 
-                        : `${progressPercentage}%` 
+                      width: !hasNextPage 
+                        ? "100%" 
+                        : isFetchingNextPage 
+                          ? `${nextProgressPercentage}%` 
+                          : `${progressPercentage}%` 
                     }}
                     transition={{ 
                       duration: isFetchingNextPage ? 0.8 : 0.3, 
@@ -357,39 +407,32 @@ export default function DashboardProducts() {
                     onAnimationComplete={handleProgressAnimationComplete}
                   />
                 </ProgressTrack>
-                <LoadMoreButton
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  $disabled={isFetchingNextPage}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <ButtonText>
-                    {isFetchingNextPage ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Spinner src="/images/icons/spinner.svg" alt="Loading" width={20} height={20} />
-                        <span>Carregando...</span>
-                      </div>
-                    ) : "Carregar mais"}
-                  </ButtonText>
-                </LoadMoreButton>
-              </LoadMoreContainer>
-            )}
-
-            {!activeSearch && !hasNextPage && displayedProducts.length > 0 && (
-              <LoadMoreContainer>
-                <ProgressTrack>
-                  <ProgressFill 
-                    initial={{ width: "100%" }}
-                    animate={{ width: "100%" }}
-                  />
-                </ProgressTrack>
-                <LoadMoreButton
-                  disabled
-                  $disabled={true}
-                >
-                  <ButtonText>Você já viu tudo</ButtonText>
-                </LoadMoreButton>
+                
+                {hasNextPage ? (
+                  <LoadMoreButton
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    $disabled={isFetchingNextPage}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <ButtonText>
+                      {isFetchingNextPage ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Spinner src="/images/icons/spinner.svg" alt="Loading" width={20} height={20} />
+                          <span>Carregando...</span>
+                        </div>
+                      ) : "Carregar mais"}
+                    </ButtonText>
+                  </LoadMoreButton>
+                ) : (
+                  <LoadMoreButton
+                    disabled
+                    $disabled={true}
+                  >
+                    <ButtonText>Você já viu tudo</ButtonText>
+                  </LoadMoreButton>
+                )}
               </LoadMoreContainer>
             )}
           </>

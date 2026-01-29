@@ -16,6 +16,19 @@ const HeaderContainer = styled.header`
   padding: 0 60px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.21);
   background-color: transparent;
+
+  @media (max-width: 768px) {
+    height: 70px;
+    padding: 0 20px;
+  }
+`;
+
+const LogoWrapper = styled(motion.div)`
+  @media (max-width: 768px) {
+    width: 120px;
+    display: flex;
+    align-items: center;
+  }
 `;
 
 const CartButton = styled(motion.div)`
@@ -46,7 +59,7 @@ export default function Header() {
 
   return (
     <HeaderContainer>
-      <motion.div
+      <LogoWrapper
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -57,8 +70,9 @@ export default function Header() {
           width={150}
           height={40}
           priority
+          style={{ width: '100%', height: 'auto' }}
         />
-      </motion.div>
+      </LogoWrapper>
       <CartButton 
         onClick={() => dispatch(setCartOpen(true))}
         whileHover={{ scale: 1.05 }}

@@ -39,14 +39,29 @@ const PriceContainer = styled(FlexContainer).attrs({
   $gap: "16px",
 })``;
 
-export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening, variants }: ProductCardProps) {
+const StyledCardContainer = styled(CardContainer)`
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+    min-height: 500px;
+    padding: 16px;
+  }
+`;
 
+const StyledImageFrame = styled(ImageFrame)`
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 200px;
+  }
+`;
+
+export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening, variants }: ProductCardProps) {
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
   };
 
   return (
-    <CardContainer
+    <StyledCardContainer
       $width="345px"
       $height="555px"
       style={{ cursor: 'default' }}
@@ -57,8 +72,8 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
       }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <Link href={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <ImageFrame
+      <Link href={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <StyledImageFrame
           $width="296px"
           $height="258px"
           style={{ alignSelf: 'center' }}
@@ -74,7 +89,7 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
               borderRadius: theme.borderRadius.default
             }}
           />
-        </ImageFrame>
+        </StyledImageFrame>
       </Link>
 
       <ContentContainer>
@@ -110,6 +125,6 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
           </PrimaryButton>
         </FlexContainer>
       </PriceContainer>
-    </CardContainer>
+    </StyledCardContainer>
   );
 }

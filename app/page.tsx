@@ -7,7 +7,7 @@ export default async function Home() {
 
  
   await queryClient.prefetchInfiniteQuery({
-    queryKey: ["products"],
+    queryKey: ["products", "name", "ASC"],
     queryFn: () => getProducts(1, 10, 'name', 'ASC'),
     initialPageParam: 1,
   });

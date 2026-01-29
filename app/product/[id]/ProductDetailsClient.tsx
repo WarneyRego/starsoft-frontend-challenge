@@ -23,7 +23,6 @@ import {
   PrimaryButton,
   SecondaryButton,
   FeedbackText,
-  LoadingContainer,
   StyledLink,
 } from "../../../lib/ui";
 
@@ -45,11 +44,31 @@ const Content = styled(motion.main)`
   margin: 0 auto;
   padding: 60px 20px;
   display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+`;
+
+const DetailsGrid = styled.div`
+  display: flex;
   gap: 60px;
+  width: 100%;
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    gap: 30px;
+  }
+`;
+
+const BackLinkContainer = styled.div`
+  width: 100%;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
   }
 `;
 
@@ -58,13 +77,41 @@ const ImageContainer = styled(ImageFrame)`
   border-radius: ${theme.borderRadius.large};
   padding: 40px;
   min-height: 400px;
+  background-color: ${theme.colors.imageFrame};
+
+  @media (max-width: 768px) {
+    min-height: 280px;
+    padding: 20px;
+    width: 100%;
+    border-radius: ${theme.borderRadius.default};
+  }
 `;
 
-const InfoContainer = styled(FlexContainer).attrs({
-  $direction: "column",
-  $gap: "32px",
-})`
+const InfoContainer = styled(motion.div)`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    gap: 20px;
+  }
+`;
+
+const StyledHeading = styled(Heading)`
+  @media (max-width: 768px) {
+    font-size: 28px !important;
+    line-height: 1.2;
+  }
+`;
+
+const StyledDescription = styled(Description)`
+  @media (max-width: 768px) {
+    font-size: 16px !important;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
 `;
 
 const PriceTag = styled(PriceRow).attrs({
@@ -72,6 +119,23 @@ const PriceTag = styled(PriceRow).attrs({
 })`
   font-size: 32px;
   font-weight: 700;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+`;
+
+const ButtonsContainer = styled(FlexContainer)`
+  max-width: 300px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    width: 100%;
+    
+    /* Hide the duplicate buttons in the main content area on mobile 
+       if we want to only use the sticky ones, but it's better to keep 
+       them and add the sticky one for convenience */
+  }
 `;
 
 const Spinner = styled(Image)`
@@ -122,19 +186,37 @@ export default function ProductDetailsClient({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <LoadingContainer>
+      <div style={{ 
+        backgroundColor: theme.colors.darkGray,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: theme.colors.white,
+        gap: '20px'
+      }}>
         <Spinner src="/images/icons/spinner.svg" alt="Loading" width={48} height={48} />
         <p>Carregando detalhes...</p>
-      </LoadingContainer>
+      </div>
     );
   }
 
   if (error || !product) {
     return (
-      <LoadingContainer>
+      <div style={{ 
+        backgroundColor: theme.colors.darkGray,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: theme.colors.white,
+        gap: '20px'
+      }}>
         <h2>{error instanceof Error ? error.message : "Produto não encontrado"}</h2>
         <StyledLink href="/">← Voltar para a galeria</StyledLink>
-      </LoadingContainer>
+      </div>
     );
   }
 
@@ -158,82 +240,107 @@ export default function ProductDetailsClient({ id }: { id: string }) {
         <Header />
       
       <Content
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.8, 
+          ease: [0.16, 1, 0.3, 1],
+          staggerChildren: 0.1
+        }}
       >
-        <ImageContainer
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={500}
-            height={500}
-            style={{ objectFit: "contain" }}
-            priority
-          />
-        </ImageContainer>
-
-        <InfoContainer>
-          <StyledLink href="/" style={{ marginBottom: '24px' }}>
+        <BackLinkContainer>
+          <StyledLink href="/">
             ← Voltar para a galeria
           </StyledLink>
-          <Heading $size="48px" $weight={700}>{product.name}</Heading>
-          <PriceTag>
-            <EthIcon $size="32px">
-              <Image src="/images/icons/eth.png" alt="ETH" fill style={{ objectFit: "contain" }} />
-            </EthIcon>
-            <PriceText $size="32px">{parseFloat(product.price).toFixed(0)} ETH</PriceText>
-          </PriceTag>
-          <Description $size="18px" $lineHeight="1.8">{product.description}</Description>
-          
-          <FlexContainer $direction="column" $gap="16px" style={{ maxWidth: '300px' }}>
-            <PrimaryButton 
-              $size="large"
-              $fullWidth
-              onClick={handleAddToCart}
-              whileHover={{ scale: 1.02, backgroundColor: "#FF9A3D" }}
-              whileTap={{ scale: 0.98 }}
-            >
-              COMPRAR AGORA
-            </PrimaryButton>
+        </BackLinkContainer>
 
-            <SecondaryButton 
-              $size="large"
-              $fullWidth
-              onClick={handleAddToCartWithoutOpening}
-              whileHover={{ backgroundColor: theme.colors.orange, color: theme.colors.white, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <AnimatePresence mode="wait">
-                {isAdded ? (
-                  <FeedbackText
-                    $size="16px"
-                    key="added"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                  >
-                    ADICIONADO!
-                  </FeedbackText>
-                ) : (
-                  <motion.span
-                    key="add"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    ADICIONAR AO CARRINHO
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </SecondaryButton>
-          </FlexContainer>
-        </InfoContainer>
+        <DetailsGrid>
+          <ImageContainer
+            variants={{
+              initial: { opacity: 0, scale: 0.9, x: -20 },
+              animate: { opacity: 1, scale: 1, x: 0 }
+            }}
+            initial="initial"
+            animate="animate"
+            transition={{ duration: 0.6 }}
+          >
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={500}
+              height={500}
+              style={{ 
+                objectFit: "contain",
+                width: '100%',
+                height: 'auto'
+              }}
+              priority
+            />
+          </ImageContainer>
+
+          <InfoContainer
+            variants={{
+              initial: { opacity: 0, x: 20 },
+              animate: { opacity: 1, x: 0 }
+            }}
+            initial="initial"
+            animate="animate"
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <StyledHeading $size="48px" $weight={700}>{product.name}</StyledHeading>
+            <PriceTag>
+              <EthIcon $size="32px">
+                <Image src="/images/icons/eth.png" alt="ETH" fill style={{ objectFit: "contain" }} />
+              </EthIcon>
+              <PriceText $size="32px">{parseFloat(product.price).toFixed(0)} ETH</PriceText>
+            </PriceTag>
+            <StyledDescription $size="18px" $lineHeight="1.8">{product.description}</StyledDescription>
+            
+            <ButtonsContainer $direction="column" $gap="16px">
+              <PrimaryButton 
+                $size="large"
+                $fullWidth
+                onClick={handleAddToCart}
+                whileHover={{ scale: 1.02, backgroundColor: "#FF9A3D" }}
+                whileTap={{ scale: 0.98 }}
+              >
+                COMPRAR AGORA
+              </PrimaryButton>
+
+              <SecondaryButton 
+                $size="large"
+                $fullWidth
+                onClick={handleAddToCartWithoutOpening}
+                whileHover={{ backgroundColor: theme.colors.orange, color: theme.colors.white, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <AnimatePresence mode="wait">
+                  {isAdded ? (
+                    <FeedbackText
+                      $size="16px"
+                      key="added"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      ADICIONADO!
+                    </FeedbackText>
+                  ) : (
+                    <motion.span
+                      key="add"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      ADICIONAR AO CARRINHO
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </SecondaryButton>
+            </ButtonsContainer>
+          </InfoContainer>
+        </DetailsGrid>
       </Content>
 
       <CartOverlay />

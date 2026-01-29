@@ -28,7 +28,7 @@ export const FlexContainer = styled.div<{
   justify-content: ${(props) => props.$justify || "flex-start"};
 `;
 
-export const LoadingContainer = styled.div`
+export const LoadingContainer = styled(motion.div)`
   background-color: ${theme.colors.darkGray};
   min-height: 100vh;
   display: flex;

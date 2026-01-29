@@ -25,4 +25,9 @@ export const OverlayContainer = styled(motion.div)<{ $maxWidth?: string }>`
   display: flex;
   flex-direction: column;
   padding: 40px 30px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    padding: 20px 15px;
+  }
 `;

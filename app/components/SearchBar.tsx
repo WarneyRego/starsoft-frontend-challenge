@@ -61,6 +61,11 @@ const SearchInputContainer = styled.div`
     border-color: ${theme.colors.orange};
     background-color: rgba(255, 255, 255, 0.08);
   }
+
+  @media (max-width: 768px) {
+    padding: 4px;
+    gap: 4px;
+  }
 `;
 
 const SearchIcon = styled.div`
@@ -69,6 +74,10 @@ const SearchIcon = styled.div`
   align-items: center;
   pointer-events: none;
   opacity: 0.5;
+
+  @media (max-width: 768px) {
+    padding: 0 8px;
+  }
 `;
 
 const Separator = styled.div`
@@ -76,6 +85,10 @@ const Separator = styled.div`
   height: 24px;
   background-color: rgba(255, 255, 255, 0.1);
   margin: 0 8px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const SearchInput = styled(Input)`
@@ -84,10 +97,16 @@ const SearchInput = styled(Input)`
   background: transparent;
   padding: 0 12px;
   height: 40px;
+  min-width: 0;
   
   &:focus {
     border: none;
     background: transparent;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 4px;
+    font-size: 14px;
   }
 `;
 
@@ -95,12 +114,15 @@ const FilterContainer = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  margin-right: 16px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+  }
 `;
 
 const ResetButton = styled(motion.button)`
   height: 40px;
-  width: 40px;
+  width: 32px;
   padding: 0;
   border: none;
   border-radius: ${theme.borderRadius.default};
@@ -115,6 +137,10 @@ const ResetButton = styled(motion.button)`
   
   &:hover {
     opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    width: 28px;
   }
 `;
 
@@ -133,6 +159,13 @@ const FilterButton = styled(motion.button)`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: 0 10px;
+    span {
+      display: none;
+    }
+  }
 `;
 
 const SearchButton = styled(PrimaryButton)`
@@ -144,6 +177,12 @@ const SearchButton = styled(PrimaryButton)`
   align-items: center;
   justify-content: center;
   min-width: 40px;
+
+  @media (max-width: 768px) {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
 `;
 
 const FilterDropdown = styled(motion.div)`
@@ -185,6 +224,11 @@ const SearchPreviewContainer = styled(motion.div)`
   max-height: 500px;
   overflow-y: auto;
   padding: 16px;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    max-height: 400px;
+  }
 `;
 
 const PreviewProductCard = styled(motion.div)`
@@ -198,12 +242,22 @@ const PreviewProductCard = styled(motion.div)`
   &:last-child {
     margin-bottom: 0;
   }
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    padding: 8px;
+  }
 `;
 
 const PreviewImageContainer = styled(ImageFrame)`
   width: 80px;
   height: 80px;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
 const PreviewProductInfo = styled.div`
@@ -309,7 +363,7 @@ export default function SearchBar({
             transition={{ duration: 0.2 }}
           >
             <Image src="/images/icons/filter.svg" alt="Filter" width={20} height={20} />
-            Filtrar
+            <span>Filtrar</span>
           </FilterButton>
 
           <AnimatePresence>

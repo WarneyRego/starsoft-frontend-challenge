@@ -30,11 +30,20 @@ const HeaderContainer = styled(FlexContainer).attrs({
   $align: "center",
 })`
   margin-bottom: 60px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 30px;
+    gap: 16px;
+  }
 `;
 
 const HeaderTitle = styled(Title).attrs({
   $size: "24px",
-})``;
+})`
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+`;
 
 const ItemsList = styled(motion.div)`
   flex: 1;
@@ -44,6 +53,10 @@ const ItemsList = styled(motion.div)`
   flex-direction: column;
   gap: 20px;
   padding-right: 10px;
+
+  @media (max-width: 768px) {
+    padding-right: 0;
+  }
 `;
 
 const ItemCard = styled(motion.div)`
@@ -53,29 +66,52 @@ const ItemCard = styled(motion.div)`
   display: flex;
   gap: 16px;
   position: relative;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    gap: 12px;
+  }
 `;
 
 const ItemImageContainer = styled(ImageFrame).attrs({
   $width: "100px",
   $height: "100px",
   $bgColor: theme.colors.navyBlue,
-})``;
+})`
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+`;
 
 const ItemDetails = styled(FlexContainer).attrs({
   $direction: "column",
   $gap: "4px",
 })`
   flex: 1;
+  min-width: 0;
 `;
 
 const ItemName = styled(Subtitle).attrs({
   $size: "16px",
-})``;
+})`
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding-right: 24px; /* Space for remove button */
+  }
+`;
 
 const ItemDescription = styled(Description).attrs({
   $size: "12px",
 })`
   max-width: 180px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    font-size: 11px;
+    -webkit-line-clamp: 1;
+  }
 `;
 
 const ItemPriceRow = styled(PriceRow)`
@@ -96,6 +132,12 @@ const QuantityContainer = styled.div`
   margin-top: 8px;
   padding: 4px 8px;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    margin-top: 4px;
+    padding: 2px 6px;
+    gap: 12px;
+  }
 `;
 
 const QuantityButton = styled(motion.button)`
@@ -104,10 +146,17 @@ const QuantityButton = styled(motion.button)`
   border: none;
   cursor: pointer;
   font-size: 18px;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const QuantityText = styled.span`
   color: ${theme.colors.white};
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const RemoveButton = styled(motion.button)`
@@ -121,10 +170,21 @@ const RemoveButton = styled(motion.button)`
   justify-content: center;
   cursor: pointer;
   align-self: flex-end;
+
+  @media (max-width: 768px) {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 const FooterContainer = styled.div`
   margin-top: 40px;
+  @media (max-width: 768px) {
+    margin-top: 20px;
+  }
 `;
 
 const TotalContainer = styled.div`
@@ -132,21 +192,37 @@ const TotalContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const TotalLabel = styled.span`
   color: ${theme.colors.white};
   font-size: 24px;
   font-weight: 700;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const TotalPriceContainer = styled(PriceRow).attrs({
   $gap: "12px",
-})``;
+})`
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+`;
 
 const TotalPrice = styled(PriceText).attrs({
   $size: "28px",
-})``;
+})`
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
+`;
 
 export default function CartOverlay() {
   const dispatch = useAppDispatch();
