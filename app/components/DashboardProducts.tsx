@@ -533,7 +533,7 @@ export default function DashboardProducts() {
       </Head>
 
       <PageContainer>
-        <Header />
+        <Header $isHidden={!!selectedProduct} />
         
         <LayoutGroup>
           <MainContent
@@ -668,6 +668,10 @@ export default function DashboardProducts() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
+                  onAnimationComplete={() => {
+                    // Garantir que o header esteja visível quando o modal abrir
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
                   <DetailContent>
                     <BackButton
@@ -727,9 +731,15 @@ export default function DashboardProducts() {
                           {selectedProduct.description}
                         </DetailDescription>
 
-                        <SharedButtonWrapper 
-                          layoutId={`button-${selectedProduct.id}`} 
-                          transition={springTransition}
+                        <ButtonsContainer
+                          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                          transition={{ 
+                            delay: 0.2, 
+                            duration: 0.5,
+                            ease: [0.25, 0.46, 0.45, 0.94]
+                          }}
                         >
                           <PrimaryButton
                             $size="large"
@@ -740,18 +750,7 @@ export default function DashboardProducts() {
                           >
                             COMPRAR AGORA
                           </PrimaryButton>
-                        </SharedButtonWrapper>
 
-                        <ButtonsContainer
-                          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                          transition={{ 
-                            delay: 0.35, 
-                            duration: 0.5,
-                            ease: [0.25, 0.46, 0.45, 0.94]
-                          }}
-                        >
                           <SecondaryButton
                             $size="large"
                             $fullWidth

@@ -2,12 +2,26 @@ import React from 'react'
 import { render, screen } from '../../lib/test-utils'
 import Header from '../../app/components/Header'
 
-// Mockamos o seletor do Redux para simular itens no carrinho
+Object.defineProperty(window, 'scrollY', {
+  writable: true,
+  value: 0,
+})
+
+global.requestAnimationFrame = (callback: FrameRequestCallback) => setTimeout(callback, 0)
+
+const mockState = {
+  cart: {
+    items: [
+      { id: 1, quantity: 2 },
+      { id: 2, quantity: 1 }
+    ]
+  }
+}
+
 jest.mock('../../lib/redux/hooks', () => ({
   ...jest.requireActual('../../lib/redux/hooks'),
   useAppSelector: jest.fn((selector) => {
-    // Simula um estado com 3 itens totais (2 de um tipo, 1 de outro)
-    return [{ quantity: 2 }, { quantity: 1 }]
+    return selector(mockState)
   })
 }))
 
