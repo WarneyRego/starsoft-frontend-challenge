@@ -1,8 +1,9 @@
 "use client";
 
+import { useRef, useCallback } from "react";
 import Image from "next/image";
 import styled from "styled-components";
-import { motion, Variants } from "framer-motion";
+import { Variants } from "framer-motion";
 import { theme } from "../../lib/theme/theme";
 import {
   CardContainer,
@@ -16,7 +17,7 @@ import {
   PriceText,
   PrimaryButton,
 } from "../../lib/ui";
-import Link from "next/link";
+import { usePageTransition } from "../../lib/providers/PageTransitionContext";
 
 interface Product {
   id: number;
@@ -30,7 +31,6 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
-  onAddToCartWithoutOpening: (product: Product) => void;
   variants?: Variants;
 }
 
@@ -49,60 +49,83 @@ const StyledCardContainer = styled(CardContainer)`
 `;
 
 const StyledImageFrame = styled(ImageFrame)`
+  background-color: transparent;
+
   @media (max-width: 768px) {
     width: 100%;
     height: 200px;
   }
 `;
 
-export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOpening, variants }: ProductCardProps) {
+export default function ProductCard({ product, onAddToCart, variants }: ProductCardProps) {
+  const { startTransition } = usePageTransition();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const priceRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
   };
 
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+
+    if (cardRef.current && imageRef.current && priceRef.current && buttonRef.current) {
+      startTransition(
+        product,
+        cardRef.current,
+        imageRef.current,
+        priceRef.current,
+        buttonRef.current
+      );
+    }
+  }, [product, startTransition]);
+
   return (
     <StyledCardContainer
+      ref={cardRef}
       $width="345px"
       $height="555px"
-      style={{ cursor: 'default' }}
+      style={{ cursor: 'pointer' }}
       variants={variants}
+      onClick={handleCardClick}
       whileHover={{  
         y: -10,
         boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.3)"
       }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <Link href={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <StyledImageFrame
-          $width="296px"
-          $height="258px"
-          style={{ alignSelf: 'center' }}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            style={{ 
-              objectFit: "cover",
-              borderRadius: theme.borderRadius.default
-            }}
-          />
-        </StyledImageFrame>
-      </Link>
+      <StyledImageFrame
+        ref={imageRef}
+        $width="296px"
+        $height="258px"
+        style={{ alignSelf: 'center' }}
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          style={{ 
+            objectFit: "cover",
+            borderRadius: theme.borderRadius.default
+          }}
+        />
+      </StyledImageFrame>
 
       <ContentContainer>
-        <Link href={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Title $size="18px">{product.name}</Title>
-        </Link>
+        <Title $size="18px" $weight={500}>{product.name}</Title>
         <Description $size="12px" $clamp={4}>
           {product.description}
         </Description>
       </ContentContainer>
 
       <PriceContainer>
-        <PriceRow>
+        <PriceRow ref={priceRef}>
           <EthIcon $size="24px">
             <Image 
               src="/images/icons/eth.png" 
@@ -116,8 +139,12 @@ export default function ProductCard({ product, onAddToCart, onAddToCartWithoutOp
         
         <FlexContainer $direction="column" $gap="12px">
           <PrimaryButton 
+            ref={buttonRef}
             $fullWidth
-            onClick={() => onAddToCart(product)}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onAddToCart(product);
+            }}
             whileHover={{ backgroundColor: "#FF9A3D", scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >

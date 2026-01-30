@@ -303,7 +303,7 @@ export default function CartOverlay() {
                           alt={item.name}
                           width={80}
                           height={80}
-                          style={{ objectFit: "contain" }}
+                          style={{ objectFit: "contain", borderRadius: theme.borderRadius.default }}
                         />
                       </ItemImageContainer>
 

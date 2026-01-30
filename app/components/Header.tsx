@@ -15,7 +15,9 @@ const HeaderContainer = styled.header`
   justify-content: space-between;
   padding: 0 60px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.21);
-  background-color: transparent;
+  background-color: ${theme.colors.darkGray};
+  position: relative;
+  z-index: 200;
 
   @media (max-width: 768px) {
     height: 70px;

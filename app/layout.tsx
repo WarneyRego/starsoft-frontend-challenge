@@ -3,10 +3,12 @@ import { Poppins, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import StyledComponentsRegistry from "../lib/providers/StyledComponentsRegistry";
 import { CombinedProvider } from "../lib/redux/Provider";
+import { PageTransitionProvider } from "../lib/providers/PageTransitionContext";
+import PageTransitionOverlay from "./components/PageTransitionOverlay";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-poppins",
 });
 
@@ -30,7 +32,12 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${poppins.variable} ${ibmPlexSans.variable}`}>
       <body>
         <CombinedProvider>
-          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+          <PageTransitionProvider>
+            <StyledComponentsRegistry>
+              {children}
+              <PageTransitionOverlay />
+            </StyledComponentsRegistry>
+          </PageTransitionProvider>
         </CombinedProvider>
       </body>
     </html>

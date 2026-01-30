@@ -4,18 +4,18 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styled from "styled-components";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import ProductCard from "./ProductCard";
 import Header from "./Header";
-import SearchBar from "./SearchBar";
 import dynamic from "next/dynamic";
 import { theme } from "../../lib/theme/theme";
 import { useAppDispatch } from "../../lib/redux/hooks";
 import { addToCart, setCartOpen } from "../../lib/redux/slices/cartSlice";
 import {
   PageContainer,
-  FlexContainer,
+  PrimaryButton,
+  SecondaryButton,
+  FeedbackText,
 } from "../../lib/ui";
 
 const CartOverlay = dynamic(() => import("./CartOverlay"), {
@@ -46,20 +46,6 @@ const MainContent = styled(motion.main)`
   }
 `;
 
-const ControlsContainer = styled(FlexContainer).attrs({
-  $justify: "flex-start",
-  $align: "center",
-  $gap: "20px",
-})`
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-`;
-
 const LoadingContainer = styled(motion.div)`
   min-height: 400px;
   display: flex;
@@ -83,9 +69,17 @@ const LoadingText = styled.div`
 
 const ProductsGrid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fill, 345px);
+  grid-template-columns: repeat(4, 345px);
   gap: 24px;
   justify-content: center;
+
+  @media (max-width: 1500px) {
+    grid-template-columns: repeat(3, 345px);
+  }
+
+  @media (max-width: 1120px) {
+    grid-template-columns: repeat(2, 345px);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -179,27 +173,266 @@ const FooterText = styled.p`
   letter-spacing: 0.05em;
 `;
 
+const CardContainer = styled(motion.div)`
+  width: 345px;
+  height: 555px;
+  background-color: ${theme.colors.navyBlue};
+  border-radius: ${theme.borderRadius.default};
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: ${theme.shadows.card};
+  cursor: pointer;
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+    min-height: 500px;
+    padding: 16px;
+  }
+`;
+
+const SharedImageContainer = styled(motion.div)`
+  width: 296px;
+  height: 258px;
+  border-radius: 8px;
+  background-color: transparent;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  align-self: center;
+
+  img {
+    border-radius: inherit !important;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 200px;
+  }
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+
+const SharedTitle = styled(motion.h3)`
+  color: ${theme.colors.white};
+  font-size: 18px;
+  font-weight: 500;
+  font-family: ${theme.fonts.primary};
+  margin: 0;
+`;
+
+const SharedDescription = styled(motion.p)`
+  color: ${theme.colors.lightGray};
+  font-size: 12px;
+  font-family: ${theme.fonts.secondary};
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const PriceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const SharedButtonWrapper = styled(motion.div)`
+  width: 100%;
+`;
+
+const SharedPriceRow = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const EthIconStyled = styled.div<{ $size?: string }>`
+  width: ${(props) => props.$size || "24px"};
+  height: ${(props) => props.$size || "24px"};
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PriceTextStyled = styled.span<{ $size?: string }>`
+  color: ${theme.colors.white};
+  font-size: ${(props) => props.$size || "20px"};
+  font-weight: 700;
+  font-family: ${theme.fonts.primary};
+`;
+
+const Overlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background-color: ${theme.colors.darkGray};
+  z-index: 100;
+`;
+
+const DetailContainer = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  overflow-y: auto;
+  padding-top: 100px;
+
+  @media (max-width: 768px) {
+    padding-top: 70px;
+  }
+`;
+
+const DetailContent = styled(motion.div)`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+`;
+
+const BackButton = styled(motion.button)`
+  background: none;
+  border: none;
+  color: ${theme.colors.white};
+  font-size: 16px;
+  font-family: ${theme.fonts.primary};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  margin-bottom: 32px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const DetailsGrid = styled.div`
+  display: flex;
+  gap: 60px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+`;
+
+const DetailImageWrapper = styled(motion.div)`
+  flex: 1;
+  max-width: 500px;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background-color: ${theme.colors.imageFrame};
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 4/3;
+  }
+`;
+
+const DetailInfoContainer = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 20px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    gap: 20px;
+    padding-top: 0;
+  }
+`;
+
+const DetailTitle = styled(motion.h1)`
+  font-size: 42px;
+  font-weight: 700;
+  color: ${theme.colors.white};
+  font-family: ${theme.fonts.primary};
+  margin: 0;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+`;
+
+const DetailPriceRow = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const DetailDescription = styled(motion.p)`
+  font-size: 16px;
+  line-height: 1.8;
+  color: ${theme.colors.lightGray};
+  font-family: ${theme.fonts.secondary};
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+`;
+
+const ButtonsContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 320px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    width: 100%;
+  }
+`;
 
 const ROWS_PER_PAGE = 10;
+
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 350,
+  damping: 35,
+  mass: 1,
+};
 
 export default function DashboardProducts() {
   const dispatch = useAppDispatch();
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeSearch, setActiveSearch] = useState(""); // Busca ativa que filtra a lista principal
-  const [sortBy, setSortBy] = useState("name");
-  const [orderBy, setOrderBy] = useState("ASC");
-
-  const handleSearch = useCallback(() => {
-    setActiveSearch(searchQuery);
-  }, [searchQuery]);
-
-  const handleReset = useCallback(() => {
-    setSearchQuery("");
-    setActiveSearch("");
-    setSortBy("name");
-    setOrderBy("ASC");
-  }, []);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isAdded, setIsAdded] = useState(false);
+  const sortBy = "name";
+  const orderBy = "ASC";
 
   const {
     data,
@@ -207,7 +440,6 @@ export default function DashboardProducts() {
     hasNextPage,
     isFetchingNextPage,
     status,
-    refetch
   } = useInfiniteQuery({
     queryKey: ["products", sortBy, orderBy],
     queryFn: async ({ pageParam = 1 }) => {
@@ -227,228 +459,335 @@ export default function DashboardProducts() {
     initialPageParam: 1,
   });
 
-  // Flatten all products
   const allProducts = useMemo(() => {
     return data?.pages.flatMap((page) => page.products) || [];
   }, [data]);
 
-  // Filter products for preview (enquanto digita)
-  const previewFilteredProducts = useMemo(() => {
-    if (!searchQuery) return [];
-    return allProducts.filter((product) => 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [allProducts, searchQuery]);
-
-  // Filter products for main list (apenas quando buscar)
-  const filteredProducts = useMemo(() => {
-    if (!activeSearch) return allProducts;
-    return allProducts.filter((product) => 
-      product.name.toLowerCase().includes(activeSearch.toLowerCase())
-    );
-  }, [allProducts, activeSearch]);
-
-  const previewProducts = useMemo(() => {
-    if (!searchQuery) return [];
-    return previewFilteredProducts.slice(0, 5);
-  }, [previewFilteredProducts, searchQuery]);
-
-  const showPreview = searchQuery.length > 0 && !activeSearch && previewProducts.length > 0;
-  const showNoResultsPreview = searchQuery.length > 0 && !activeSearch && previewFilteredProducts.length === 0;
-
   useEffect(() => {
     if (status === "success") {
-      const isLoadMore = filteredProducts.length > displayedProducts.length && displayedProducts.length > 0;
-      
-      // Se não for "carregar mais" (ou seja, carga inicial, busca ou filtro),
-      // atualizamos imediatamente. Se for "carregar mais", o handleProgressAnimationComplete
-      // cuidará de atualizar após a animação da barra.
+      const isLoadMore = allProducts.length > displayedProducts.length && displayedProducts.length > 0;
       if (!isLoadMore) {
-        setDisplayedProducts(filteredProducts);
+        setDisplayedProducts(allProducts);
       }
     }
-  }, [status, filteredProducts]);
+  }, [status, allProducts, displayedProducts.length]);
 
   const totalCount = data?.pages[0]?.count || 0;
-  const progressPercentage = totalCount > 0 ? (filteredProducts.length / totalCount) * 100 : 0;
+  const progressPercentage = totalCount > 0 ? (allProducts.length / totalCount) * 100 : 0;
   const prevProgressPercentage = totalCount > 0 ? (displayedProducts.length / totalCount) * 100 : 0;
   const nextProgressPercentage = totalCount > 0 
     ? (Math.min(displayedProducts.length + ROWS_PER_PAGE, totalCount) / totalCount) * 100 
     : 0;
 
   const handleProgressAnimationComplete = () => {
-    if (!isFetchingNextPage && filteredProducts.length > displayedProducts.length) {
-      setDisplayedProducts(filteredProducts);
+    if (!isFetchingNextPage && allProducts.length > displayedProducts.length) {
+      setDisplayedProducts(allProducts);
     }
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleCardClick = useCallback((product: Product) => {
+    setSelectedProduct(product);
+    document.body.style.overflow = "hidden";
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setSelectedProduct(null);
+    document.body.style.overflow = "";
+  }, []);
+
+  const handleAddToCart = () => {
+    if (selectedProduct) {
+      dispatch(addToCart(selectedProduct));
+      dispatch(setCartOpen(true));
+    }
+  };
+
+  const handleAddToCartWithoutOpening = () => {
+    if (selectedProduct) {
+      dispatch(addToCart(selectedProduct));
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000);
+    }
+  };
+
+  const handleAddToCartFromCard = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
     dispatch(addToCart(product));
     dispatch(setCartOpen(true));
   };
 
-  const handleAddToCartWithoutOpening = (product: Product) => {
-    dispatch(addToCart(product));
-  };
-
-  const handleSortChange = (newSortBy: string, newOrderBy: string) => {
-    setSortBy(newSortBy);
-    setOrderBy(newOrderBy);
-  };
+  const formatPrice = (price: string) => parseFloat(price).toFixed(0);
 
   return (
     <>
       <Head>
-        <title>Starsoft Products - Galeria de NFTs</title>
-        <meta name="description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
-        <meta name="keywords" content="NFT, produtos digitais, Ethereum, ETH, galeria, Starsoft" />
-        <meta property="og:title" content="Starsoft Products - Galeria de NFTs" />
-        <meta property="og:description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Starsoft Products - Galeria de NFTs" />
-        <meta name="twitter:description" content="Explore nossa galeria de produtos NFT exclusivos. Encontre os melhores produtos digitais com preços em ETH." />
+        <title>
+          {selectedProduct 
+            ? `${selectedProduct.name} - Starsoft Products`
+            : "Starsoft Products - Galeria de NFTs"
+          }
+        </title>
+        <meta name="description" content={selectedProduct?.description || "Explore nossa galeria de produtos NFT exclusivos."} />
       </Head>
+
       <PageContainer>
         <Header />
-      
-      <MainContent
-        initial={{ opacity: 0, y: 30, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          duration: 0.8, 
-          ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for smooth motion
-        }}
-      >
-        <ControlsContainer>
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onSearch={handleSearch}
-            onReset={handleReset}
-            previewProducts={previewProducts}
-            previewFilteredCount={previewFilteredProducts.length}
-            showPreview={showPreview}
-            showNoResultsPreview={showNoResultsPreview}
-            sortBy={sortBy}
-            orderBy={orderBy}
-            onSortChange={handleSortChange}
-          />
-        </ControlsContainer>
-
-        {status === "pending" ? (
-          <LoadingContainer
+        
+        <LayoutGroup>
+          <MainContent
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
           >
-            <Spinner src="/images/icons/spinner.svg" alt="Loading" width={48} height={48} />
-            <LoadingText>Carregando produtos...</LoadingText>
-          </LoadingContainer>
-        ) : status === "error" ? (
-          <LoadingContainer
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <LoadingText>Erro ao carregar produtos. Por favor, tente novamente.</LoadingText>
-          </LoadingContainer>
-        ) : (
-          <>
-            {displayedProducts.length === 0 && activeSearch ? (
+            {status === "pending" ? (
               <LoadingContainer>
-                <LoadingText>Nenhum produto encontrado para "{activeSearch}"</LoadingText>
+                <Spinner src="/images/icons/spinner.svg" alt="Loading" width={48} height={48} />
+                <LoadingText>Carregando produtos...</LoadingText>
+              </LoadingContainer>
+            ) : status === "error" ? (
+              <LoadingContainer>
+                <LoadingText>Erro ao carregar produtos. Por favor, tente novamente.</LoadingText>
               </LoadingContainer>
             ) : (
-              <ProductsGrid
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatePresence mode="popLayout">
-                  {displayedProducts.map((product) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.4 }}
-                      layout
-                    >
-                      <ProductCard 
-                        product={product} 
-                        onAddToCart={handleAddToCart}
-                        onAddToCartWithoutOpening={handleAddToCartWithoutOpening}
+              <>
+                <ProductsGrid layout>
+                  <AnimatePresence>
+                    {displayedProducts.map((product) => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.4 }}
+                        layout
+                      >
+                        <CardContainer
+                          onClick={() => handleCardClick(product)}
+                          whileHover={{ y: -4, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.25)" }}
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                          <SharedImageContainer layoutId={`image-${product.id}`} transition={springTransition}>
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              style={{ objectFit: "cover" }}
+                            />
+                          </SharedImageContainer>
+
+                          <ContentContainer>
+                            <SharedTitle layoutId={`title-${product.id}`} transition={springTransition}>
+                              {product.name}
+                            </SharedTitle>
+                            <SharedDescription layoutId={`desc-${product.id}`} transition={springTransition}>
+                              {product.description}
+                            </SharedDescription>
+                          </ContentContainer>
+
+                          <PriceContainer>
+                            <SharedPriceRow layoutId={`price-${product.id}`} transition={springTransition}>
+                              <EthIconStyled $size="24px">
+                                <Image src="/images/icons/eth.png" alt="ETH" fill style={{ objectFit: "contain" }} />
+                              </EthIconStyled>
+                              <PriceTextStyled $size="20px">{formatPrice(product.price)} ETH</PriceTextStyled>
+                            </SharedPriceRow>
+
+                            <SharedButtonWrapper layoutId={`button-${product.id}`} transition={springTransition}>
+                              <PrimaryButton
+                                $fullWidth
+                                onClick={(e: React.MouseEvent) => handleAddToCartFromCard(e, product)}
+                                whileHover={{ backgroundColor: "#FF9A3D", scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                COMPRAR
+                              </PrimaryButton>
+                            </SharedButtonWrapper>
+                          </PriceContainer>
+                        </CardContainer>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </ProductsGrid>
+
+                {(hasNextPage || displayedProducts.length > 0) && (
+                  <LoadMoreContainer>
+                    <ProgressTrack>
+                      <ProgressFill 
+                        initial={{ width: `${prevProgressPercentage}%` }}
+                        animate={{ 
+                          width: !hasNextPage 
+                            ? "100%" 
+                            : isFetchingNextPage 
+                              ? `${nextProgressPercentage}%` 
+                              : `${progressPercentage}%` 
+                        }}
+                        transition={{ duration: isFetchingNextPage ? 0.8 : 0.3 }}
+                        onAnimationComplete={handleProgressAnimationComplete}
                       />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </ProductsGrid>
-            )}
-
-            {!activeSearch && (hasNextPage || displayedProducts.length > 0) && (
-              <LoadMoreContainer
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-              >
-                <ProgressTrack>
-                  <ProgressFill 
-                    initial={{ width: `${prevProgressPercentage}%` }}
-                    animate={{ 
-                      width: !hasNextPage 
-                        ? "100%" 
-                        : isFetchingNextPage 
-                          ? `${nextProgressPercentage}%` 
-                          : `${progressPercentage}%` 
-                    }}
-                    transition={{ 
-                      duration: isFetchingNextPage ? 0.8 : 0.3, 
-                      ease: isFetchingNextPage ? "linear" : "easeOut" 
-                    }}
-                    onAnimationComplete={handleProgressAnimationComplete}
-                  />
-                </ProgressTrack>
-                
-                {hasNextPage ? (
-                  <LoadMoreButton
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                    $disabled={isFetchingNextPage}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <ButtonText>
-                      {isFetchingNextPage ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Spinner src="/images/icons/spinner.svg" alt="Loading" width={20} height={20} />
-                          <span>Carregando...</span>
-                        </div>
-                      ) : "Carregar mais"}
-                    </ButtonText>
-                  </LoadMoreButton>
-                ) : (
-                  <LoadMoreButton
-                    disabled
-                    $disabled={true}
-                  >
-                    <ButtonText>Você já viu tudo</ButtonText>
-                  </LoadMoreButton>
+                    </ProgressTrack>
+                    
+                    <LoadMoreButton
+                      onClick={() => hasNextPage && fetchNextPage()}
+                      disabled={isFetchingNextPage || !hasNextPage}
+                      $disabled={isFetchingNextPage || !hasNextPage}
+                      whileHover={hasNextPage ? { scale: 1.02 } : {}}
+                      whileTap={hasNextPage ? { scale: 0.98 } : {}}
+                    >
+                      <ButtonText>
+                        {!hasNextPage 
+                          ? "Você já viu tudo" 
+                          : isFetchingNextPage 
+                            ? <><Spinner src="/images/icons/spinner.svg" alt="Loading" width={20} height={20} /> Carregando...</>
+                            : "Carregar mais"
+                        }
+                      </ButtonText>
+                    </LoadMoreButton>
+                  </LoadMoreContainer>
                 )}
-              </LoadMoreContainer>
+              </>
             )}
-          </>
-        )}
-      </MainContent>
+          </MainContent>
 
-      <CartOverlay />
-      
-      <Footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-      >
-        <FooterText>STARSOFT © TODOS OS DIREITOS RESERVADOS</FooterText>
-      </Footer>
-    </PageContainer>
+          <AnimatePresence>
+            {selectedProduct && (
+              <>
+                <Overlay
+                  key="overlay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={handleBack}
+                />
+
+                <DetailContainer
+                  key="detail"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DetailContent>
+                    <BackButton
+                      onClick={handleBack}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2, duration: 0.3 }}
+                    >
+                      ← Voltar para a galeria
+                    </BackButton>
+
+                    <DetailsGrid>
+                      <DetailImageWrapper
+                        layoutId={`image-${selectedProduct.id}`}
+                        transition={springTransition}
+                      >
+                        <Image
+                          src={selectedProduct.image}
+                          alt={selectedProduct.name}
+                          fill
+                          style={{ objectFit: "contain", borderRadius: "8px" }}
+                          priority
+                        />
+                      </DetailImageWrapper>
+
+                      <DetailInfoContainer>
+                        <DetailTitle
+                          layoutId={`title-${selectedProduct.id}`}
+                          transition={springTransition}
+                        >
+                          {selectedProduct.name}
+                        </DetailTitle>
+
+                        <DetailPriceRow
+                          layoutId={`price-${selectedProduct.id}`}
+                          transition={springTransition}
+                        >
+                          <EthIconStyled $size="32px">
+                            <Image src="/images/icons/eth.png" alt="ETH" fill style={{ objectFit: "contain" }} />
+                          </EthIconStyled>
+                          <PriceTextStyled $size="32px">{formatPrice(selectedProduct.price)} ETH</PriceTextStyled>
+                        </DetailPriceRow>
+
+                        <DetailDescription
+                          layoutId={`desc-${selectedProduct.id}`}
+                          transition={springTransition}
+                        >
+                          {selectedProduct.description}
+                        </DetailDescription>
+
+                        <SharedButtonWrapper 
+                          layoutId={`button-${selectedProduct.id}`} 
+                          transition={springTransition}
+                        >
+                          <PrimaryButton
+                            $size="large"
+                            $fullWidth
+                            onClick={handleAddToCart}
+                            whileHover={{ scale: 1.02, backgroundColor: "#FF9A3D" }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            COMPRAR AGORA
+                          </PrimaryButton>
+                        </SharedButtonWrapper>
+
+                        <ButtonsContainer
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3, duration: 0.4 }}
+                        >
+                          <SecondaryButton
+                            $size="large"
+                            $fullWidth
+                            onClick={handleAddToCartWithoutOpening}
+                            whileHover={{ backgroundColor: theme.colors.orange, color: theme.colors.white, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <AnimatePresence mode="wait">
+                              {isAdded ? (
+                                <FeedbackText
+                                  $size="16px"
+                                  key="added"
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -10 }}
+                                >
+                                  ADICIONADO!
+                                </FeedbackText>
+                              ) : (
+                                <motion.span
+                                  key="add"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                >
+                                  ADICIONAR AO CARRINHO
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </SecondaryButton>
+                        </ButtonsContainer>
+                      </DetailInfoContainer>
+                    </DetailsGrid>
+                  </DetailContent>
+                </DetailContainer>
+              </>
+            )}
+          </AnimatePresence>
+        </LayoutGroup>
+
+        <CartOverlay />
+        
+        {!selectedProduct && (
+          <Footer
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <FooterText>STARSOFT © TODOS OS DIREITOS RESERVADOS</FooterText>
+          </Footer>
+        )}
+      </PageContainer>
     </>
   );
 }

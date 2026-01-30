@@ -54,23 +54,4 @@ describe('DashboardProducts', () => {
       expect(screen.getByText('NFT Teste 2')).toBeInTheDocument()
     })
   })
-
-  it('deve permitir buscar produtos via searchbar', async () => {
-    render(<DashboardProducts />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('NFT Teste 1')).toBeInTheDocument()
-    })
-
-    const searchInput = screen.getByPlaceholderText(/Buscar produtos/i)
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { fireEvent } = require('@testing-library/react')
-    
-    fireEvent.change(searchInput, { target: { value: 'NFT Teste 1' } })
-    
-    // O filtro de preview deve aparecer (mock da searchbar)
-    await waitFor(() => {
-      expect(screen.getAllByText('NFT Teste 1').length).toBeGreaterThan(0)
-    })
-  })
 })

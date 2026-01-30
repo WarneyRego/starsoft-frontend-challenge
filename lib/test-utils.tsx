@@ -6,6 +6,7 @@ import cartReducer from './redux/slices/cartSlice'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { theme } from './theme/theme'
 import { ThemeProvider } from 'styled-components'
+import { PageTransitionProvider } from './providers/PageTransitionContext'
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   preloadedState?: any
@@ -37,9 +38,11 @@ const customRender = (
     return (
       <Provider store={actualStore}>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            {children}
-          </ThemeProvider>
+          <PageTransitionProvider>
+            <ThemeProvider theme={theme}>
+              {children}
+            </ThemeProvider>
+          </PageTransitionProvider>
         </QueryClientProvider>
       </Provider>
     )

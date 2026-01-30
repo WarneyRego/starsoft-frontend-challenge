@@ -59,7 +59,11 @@ export const Button = styled(motion.button)<ButtonProps>`
   ${(props) => getButtonStyles(props.$variant)};
   border-radius: ${theme.borderRadius.default};
   font-size: ${(props) => getButtonFontSize(props.$size)};
-  font-weight: ${(props) => (props.$variant === "secondary" ? 600 : 700)};
+  font-weight: ${(props) => {
+    if (props.$variant === "primary") return 600;
+    if (props.$variant === "secondary") return 600;
+    return 700;
+  }};
   cursor: pointer;
   font-family: ${theme.fonts.primary};
   display: flex;

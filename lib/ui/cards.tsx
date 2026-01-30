@@ -33,4 +33,8 @@ export const ImageFrame = styled(motion.div)<{
   align-items: center;
   justify-content: center;
   overflow: hidden;
+
+  img {
+    border-radius: inherit !important;
+  }
 `;
