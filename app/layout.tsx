@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, IBM_Plex_Sans } from "next/font/google";
+import { Poppins, IBM_Plex_Sans, Lato } from "next/font/google";
 import "./globals.css";
 import StyledComponentsRegistry from "../lib/providers/StyledComponentsRegistry";
 import { CombinedProvider } from "../lib/redux/Provider";
@@ -18,6 +18,12 @@ const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
 });
 
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-lato",
+});
+
 export const metadata: Metadata = {
   title: "Starsoft Products",
   description: "Lista de produtos",
@@ -29,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${poppins.variable} ${ibmPlexSans.variable}`}>
+    <html lang="pt-BR" className={`${poppins.variable} ${ibmPlexSans.variable} ${lato.variable}`}>
       <body>
         <CombinedProvider>
           <PageTransitionProvider>

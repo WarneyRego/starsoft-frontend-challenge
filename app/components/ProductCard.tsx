@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useCallback } from "react";
 import Image from "next/image";
 import styled from "styled-components";
 import { Variants } from "framer-motion";
@@ -17,7 +16,6 @@ import {
   PriceText,
   PrimaryButton,
 } from "../../lib/ui";
-import { usePageTransition } from "../../lib/providers/PageTransitionContext";
 
 interface Product {
   id: number;
@@ -31,6 +29,7 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+  onCardClick?: (product: Product) => void;
   variants?: Variants;
 }
 
@@ -57,39 +56,23 @@ const StyledImageFrame = styled(ImageFrame)`
   }
 `;
 
-export default function ProductCard({ product, onAddToCart, variants }: ProductCardProps) {
-  const { startTransition } = usePageTransition();
-  const cardRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const priceRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
+export default function ProductCard({ product, onAddToCart, onCardClick, variants }: ProductCardProps) {
   const formatPrice = (price: string) => {
     return parseFloat(price).toFixed(0);
   };
 
-  const handleCardClick = useCallback((e: React.MouseEvent) => {
+  const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
-
-    if (cardRef.current && imageRef.current && priceRef.current && buttonRef.current) {
-      startTransition(
-        product,
-        cardRef.current,
-        imageRef.current,
-        priceRef.current,
-        buttonRef.current
-      );
-    }
-  }, [product, startTransition]);
+    onCardClick?.(product);
+  };
 
   return (
     <StyledCardContainer
-      ref={cardRef}
       $width="345px"
       $height="555px"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: onCardClick ? 'pointer' : 'default' }}
       variants={variants}
       onClick={handleCardClick}
       whileHover={{  
@@ -99,7 +82,6 @@ export default function ProductCard({ product, onAddToCart, variants }: ProductC
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <StyledImageFrame
-        ref={imageRef}
         $width="296px"
         $height="258px"
         style={{ alignSelf: 'center' }}
@@ -125,7 +107,7 @@ export default function ProductCard({ product, onAddToCart, variants }: ProductC
       </ContentContainer>
 
       <PriceContainer>
-        <PriceRow ref={priceRef}>
+        <PriceRow>
           <EthIcon $size="24px">
             <Image 
               src="/images/icons/eth.png" 
@@ -139,7 +121,6 @@ export default function ProductCard({ product, onAddToCart, variants }: ProductC
         
         <FlexContainer $direction="column" $gap="12px">
           <PrimaryButton 
-            ref={buttonRef}
             $fullWidth
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();

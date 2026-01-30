@@ -279,7 +279,8 @@ const PriceTextStyled = styled.span<{ $size?: string }>`
 const Overlay = styled(motion.div)`
   position: fixed;
   inset: 0;
-  background-color: ${theme.colors.darkGray};
+  background-color: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(8px);
   z-index: 100;
 `;
 
@@ -419,11 +420,12 @@ const ButtonsContainer = styled(motion.div)`
 
 const ROWS_PER_PAGE = 10;
 
+// Transição suave e natural para shared elements
 const springTransition = {
   type: "spring" as const,
-  stiffness: 350,
-  damping: 35,
-  mass: 1,
+  stiffness: 300,
+  damping: 30,
+  mass: 0.8,
 };
 
 export default function DashboardProducts() {
@@ -653,10 +655,10 @@ export default function DashboardProducts() {
               <>
                 <Overlay
                   key="overlay"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                  exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                   onClick={handleBack}
                 />
 
@@ -665,14 +667,20 @@ export default function DashboardProducts() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.15 }}
                 >
                   <DetailContent>
                     <BackButton
                       onClick={handleBack}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2, duration: 0.3 }}
+                      exit={{ opacity: 0, x: -30 }}
+                      transition={{ 
+                        delay: 0.1, 
+                        duration: 0.5, 
+                        ease: [0.25, 0.46, 0.45, 0.94] 
+                      }}
+                      whileHover={{ x: -5 }}
                     >
                       ← Voltar para a galeria
                     </BackButton>
@@ -681,6 +689,9 @@ export default function DashboardProducts() {
                       <DetailImageWrapper
                         layoutId={`image-${selectedProduct.id}`}
                         transition={springTransition}
+                        initial={{ scale: 0.95 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0.95 }}
                       >
                         <Image
                           src={selectedProduct.image}
@@ -732,9 +743,14 @@ export default function DashboardProducts() {
                         </SharedButtonWrapper>
 
                         <ButtonsContainer
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3, duration: 0.4 }}
+                          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                          transition={{ 
+                            delay: 0.35, 
+                            duration: 0.5,
+                            ease: [0.25, 0.46, 0.45, 0.94]
+                          }}
                         >
                           <SecondaryButton
                             $size="large"
@@ -751,6 +767,7 @@ export default function DashboardProducts() {
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   exit={{ opacity: 0, y: -10 }}
+                                  transition={{ duration: 0.2 }}
                                 >
                                   ADICIONADO!
                                 </FeedbackText>
@@ -760,6 +777,7 @@ export default function DashboardProducts() {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
                                 >
                                   ADICIONAR AO CARRINHO
                                 </motion.span>

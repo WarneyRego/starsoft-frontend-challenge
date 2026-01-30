@@ -13,6 +13,7 @@ export const theme = {
   fonts: {
     primary: "var(--font-poppins), sans-serif",
     secondary: "var(--font-ibm-plex-sans), sans-serif",
+    button: "var(--font-lato), sans-serif",
   },
   borderRadius: {
     default: "8px",

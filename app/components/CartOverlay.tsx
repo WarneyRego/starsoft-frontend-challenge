@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import styled from "styled-components";
@@ -8,7 +9,8 @@ import { useAppDispatch, useAppSelector } from "../../lib/redux/hooks";
 import { 
   removeFromCart, 
   updateQuantity, 
-  setCartOpen 
+  setCartOpen,
+  clearCart
 } from "../../lib/redux/slices/cartSlice";
 import {
   Backdrop,
@@ -228,6 +230,7 @@ export default function CartOverlay() {
   const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state.cart.items);
   const isOpen = useAppSelector((state) => state.cart.isOpen);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const total = items.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
@@ -238,6 +241,18 @@ export default function CartOverlay() {
   const handleRemove = (id: number) => dispatch(removeFromCart(id));
   const handleUpdateQuantity = (id: number, delta: number) => 
     dispatch(updateQuantity({ id, delta }));
+
+  const handleCompletePurchase = () => {
+    if (items.length === 0) return;
+    
+    setIsCompleting(true);
+    
+    // Limpar carrinho após 1.5 segundos
+    setTimeout(() => {
+      dispatch(clearCart());
+      setIsCompleting(false);
+    }, 1500);
+  };
 
   return (
     <AnimatePresence>
@@ -377,10 +392,51 @@ export default function CartOverlay() {
               <PrimaryButton
                 $size="large"
                 $fullWidth
-                whileHover={{ backgroundColor: "#FF9A3D", scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                onClick={handleCompletePurchase}
+                disabled={items.length === 0 || isCompleting}
+                whileHover={!isCompleting && items.length > 0 ? { backgroundColor: "#FF9A3D", scale: 1.02 } : {}}
+                whileTap={!isCompleting && items.length > 0 ? { scale: 0.98 } : {}}
+                animate={isCompleting ? { 
+                  backgroundColor: "#22C55E",
+                  scale: [1, 1.05, 1],
+                } : {}}
+                transition={isCompleting ? { 
+                  duration: 0.5,
+                  ease: "easeInOut"
+                } : {}}
               >
-                FINALIZAR COMPRA
+                <AnimatePresence mode="wait">
+                  {isCompleting ? (
+                    <motion.span
+                      key="completed"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <motion.path
+                          d="M20 6L9 17l-5-5"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.3, delay: 0.1 }}
+                        />
+                      </svg>
+                      COMPRA FINALIZADA
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="purchase"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      FINALIZAR COMPRA
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </PrimaryButton>
             </FooterContainer>
           </OverlayContainer>

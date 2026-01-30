@@ -336,47 +336,55 @@ export default function ProductDetailsClient({ id }: { id: string }) {
               </ProductDescription>
               
               <ButtonsContainer variants={itemVariants}>
-                <PrimaryButton 
-                  $size="large"
-                  $fullWidth
-                  onClick={handleAddToCart}
-                  whileHover={{ scale: 1.02, backgroundColor: "#FF9A3D" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  COMPRAR AGORA
-                </PrimaryButton>
-
                 <SecondaryButton 
                   $size="large"
                   $fullWidth
-                  onClick={handleAddToCartWithoutOpening}
-                  whileHover={{ backgroundColor: theme.colors.orange, color: theme.colors.white, scale: 1.02 }}
+                  onClick={handleAddToCart}
+                  style={{ 
+                    backgroundColor: "#4A4A4A",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontWeight: 600
+                  }}
+                  whileHover={{ scale: 1.02, backgroundColor: "#5A5A5A" }}
                   whileTap={{ scale: 0.98 }}
+                >
+                  COMPRAR
+                </SecondaryButton>
+
+                <PrimaryButton 
+                  $size="large"
+                  $fullWidth
+                  onClick={handleAddToCartWithoutOpening}
+                  animate={isAdded ? { backgroundColor: "#22C55E" } : {}}
+                  transition={{ duration: 0.3 }}
+                  whileHover={!isAdded ? { scale: 1.02, backgroundColor: "#FF9A3D" } : {}}
+                  whileTap={!isAdded ? { scale: 0.98 } : {}}
                 >
                   <AnimatePresence mode="wait">
                     {isAdded ? (
-                      <FeedbackText
-                        $size="16px"
+                      <motion.span
                         key="added"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        ADICIONADO!
-                      </FeedbackText>
+                        ADICIONADO AO CARRINHO
+                      </motion.span>
                     ) : (
                       <motion.span
                         key="add"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        transition={{ duration: 0.2 }}
                       >
                         ADICIONAR AO CARRINHO
                       </motion.span>
                     )}
                   </AnimatePresence>
-                </SecondaryButton>
+                </PrimaryButton>
               </ButtonsContainer>
             </InfoContainer>
           </DetailsGrid>

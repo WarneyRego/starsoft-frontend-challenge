@@ -13,14 +13,14 @@ const mockProduct = {
 
 describe('ProductCard', () => {
   const mockOnAddToCart = jest.fn()
-  const mockOnAddToCartWithoutOpening = jest.fn()
+  const mockOnCardClick = jest.fn()
 
   it('deve renderizar as informações do produto corretamente', () => {
     render(
       <ProductCard 
         product={mockProduct} 
         onAddToCart={mockOnAddToCart}
-        onAddToCartWithoutOpening={mockOnAddToCartWithoutOpening}
+        onCardClick={mockOnCardClick}
       />
     )
 
@@ -34,7 +34,7 @@ describe('ProductCard', () => {
       <ProductCard 
         product={mockProduct} 
         onAddToCart={mockOnAddToCart}
-        onAddToCartWithoutOpening={mockOnAddToCartWithoutOpening}
+        onCardClick={mockOnCardClick}
       />
     )
 
@@ -42,5 +42,21 @@ describe('ProductCard', () => {
     fireEvent.click(buyButton)
 
     expect(mockOnAddToCart).toHaveBeenCalledWith(mockProduct)
+  })
+
+  it('deve chamar onCardClick quando o card for clicado', () => {
+    render(
+      <ProductCard 
+        product={mockProduct} 
+        onAddToCart={mockOnAddToCart}
+        onCardClick={mockOnCardClick}
+      />
+    )
+
+    const card = screen.getByText('NFT Teste').closest('div[class]')
+    if (card) {
+      fireEvent.click(card)
+      expect(mockOnCardClick).toHaveBeenCalledWith(mockProduct)
+    }
   })
 })
